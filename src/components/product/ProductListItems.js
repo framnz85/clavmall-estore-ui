@@ -1,0 +1,94 @@
+import React from "react";
+import { Link } from "react-router-dom";
+import { Radio } from "antd";
+
+const ProductListItems = ({ product, setVariant }) => {
+  const { price, category, subcats, parent, variants, quantity, sold } =
+    product;
+
+  return (
+    <ul className="list-group">
+      <li className="list-group-item">
+        <h4>Price</h4>
+        <span
+          className="label label-default label-pill pull-xs-right"
+          style={{ color: "#ff8c00", fontSize: "22px" }}
+        >
+          &#8369; {parseFloat(price).toFixed(2)}
+        </span>
+      </li>
+      {category && (
+        <li className="list-group-item">
+          Category
+          <Link
+            to={`/category/${category.slug}`}
+            className="label label-default label-pill pull-xs-right"
+          >
+            {category.name}
+          </Link>
+        </li>
+      )}
+      {subcats && (
+        <li className="list-group-item">
+          Sub Category
+          {subcats.map((sub) => (
+            <Link
+              key={sub._id}
+              to={`/subcats/${sub.slug}`}
+              className="label label-default label-pill pull-xs-right"
+            >
+              {sub.name}
+            </Link>
+          ))}
+        </li>
+      )}
+      {parent && (
+        <li className="list-group-item">
+          Parent / Brand
+          <Link
+            to={`/parent/${parent.slug}`}
+            className="label label-default label-pill pull-xs-right"
+          >
+            {parent.name}
+          </Link>
+        </li>
+      )}
+      <li className="list-group-item">
+        Available
+        <span className="label label-default label-pill pull-xs-right">
+          {quantity}
+        </span>
+      </li>
+      <li className="list-group-item">
+        Sold
+        <span className="label label-default label-pill pull-xs-right">
+          {sold}
+        </span>
+      </li>
+      {variants.length && (
+        <>
+          <li className="list-group-item">Variant:</li>
+          <li className="list-group-item">
+            <Radio.Group defaultValue={variants[0]._id}>
+              <Radio.Button
+                style={{ display: "none" }}
+                value="0"
+              ></Radio.Button>
+              {variants.map((v) => (
+                <Radio.Button
+                  value={v._id}
+                  key={v._id}
+                  onClick={(e) => setVariant(e.target.value)}
+                >
+                  {v.name}
+                </Radio.Button>
+              ))}
+            </Radio.Group>
+          </li>
+        </>
+      )}
+    </ul>
+  );
+};
+
+export default ProductListItems;

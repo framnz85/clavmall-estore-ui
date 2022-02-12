@@ -1,0 +1,9 @@
+body {
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  background-color: #efefef;
+}
+
+.slider img {
+  height: 512px;
+  object-fit: cover;
+}
