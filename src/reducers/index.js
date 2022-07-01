@@ -1,42 +1,26 @@
 import { combineReducers } from "redux";
 import { estoreReducer } from "./estoreReducer";
 import { userReducer } from "./userReducer";
-import { searchReducer } from "./searchReducer";
-import { cartReducer } from "./cartReducer";
-import { drawerReducer } from "./drawerReducer";
-import { payoptReducer } from "./payoptReducer";
+import { inputsReducer } from "./inputsReducer";
 import { categoryReducer } from "./categoryReducer";
 import { productReducer } from "./productReducer";
 import { adminReducer } from "./adminReducer";
 import { subcatReducer } from "./subcatReducer";
 import { parentReducer } from "./parentReducer";
 import { locationReducer } from "./locationReducer";
-import { couponReducer } from "./couponReducer";
-import { historyReducer } from "./historyReducer";
+import { orderReducer } from "./orderReducer";
 
-const appReducer = combineReducers({
+const rootReducer = combineReducers({
   estore: estoreReducer,
   user: userReducer,
-  search: searchReducer,
-  cart: cartReducer,
-  drawer: drawerReducer,
-  payopt: payoptReducer,
+  inputs: inputsReducer,
   categories: categoryReducer,
   products: productReducer,
   admin: adminReducer,
   subcats: subcatReducer,
   parents: parentReducer,
   location: locationReducer,
-  coupon: couponReducer,
-  history: historyReducer,
+  orders: orderReducer,
 });
-
-const rootReducer = (state, action) => {
-  if (action.type === "USER_LOGOUT") {
-    return appReducer(undefined, action);
-  }
-
-  return appReducer(state, action);
-};
 
 export default rootReducer;

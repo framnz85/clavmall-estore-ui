@@ -1,155 +1,114 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import axios from "axios";
-import { Modal, Pagination } from "antd";
-import { LoadingOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import { LoadingOutlined } from "@ant-design/icons";
 import AdminNav from "../../../components/nav/AdminNav";
-import { getProducts, getProductsCount } from "../../../functions/product";
-import AdminProductCard from "../../../components/cards/AdminProductCard";
-import { removeProduct } from "../../../functions/product";
-import { updateChanges } from "../../../functions/estore";
+import ProdShowCards from "../../../components/forms/product/ProdShowCards";
+import ProdGroupSearch from "../../../components/forms/product/ProdGroupSearch";
+import InputSearch from "../../../components/common/form/InputSearch";
+import { getProducts } from "../../../functions/product";
 
-const { confirm } = Modal;
+const initialState = {
+  products: [],
+  itemsCount: 0,
+  pageSize: 10,
+  currentPage: 1,
+  sortkey: "createdAt",
+  sortkeys: [
+    { id: "1", label: "Title (a-z)", value: "title", sort: 1 },
+    { id: "2", label: "Title (z-a)", value: "title", sort: -1 },
+    { id: "3", label: "Price (ascending)", value: "price", sort: 1 },
+    { id: "4", label: "Price (descending)", value: "price", sort: -1 },
+    { id: "5", label: "Date Uploaded (newest)", value: "createdAt", sort: 1 },
+    { id: "6", label: "Date Uploaded (oldest)", value: "createdAt", sort: -1 },
+    { id: "7", label: "Date Updated (latest)", value: "updatedAt", sort: 1 },
+    { id: "8", label: "Date Updated (oldest)", value: "updatedAt", sort: -1 }
+  ],
+  sort: -1,
+  category: "",
+  subcat: "",
+  parent: "",
+};
 
 const AllProducts = () => {
-  const itemPerPage = 20;
+  let dispatch = useDispatch();
 
-  const dispatch = useDispatch();
-  const { user, admin } = useSelector((state) => ({ ...state }));
-  const { prodCount, prodPages, products } = admin;
+  const { admin } = useSelector((state) => ({ ...state }));
 
+  const [values, setValues] = useState(initialState);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
+  const [keyword, setKeyword] = useState("");
 
   useEffect(() => {
-    loadAllProducts();
-  }, [page]); // eslint-disable-line react-hooks/exhaustive-deps
+    loadProducts();
+  }, [values.currentPage]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    if (typeof window !== undefined) {
-      if (!localStorage.getItem("admin") || prodCount === 0) {
-        getProductsCount().then((res) => {
-          dispatch({
-            type: "ADMIN_OBJECT",
-            payload: { prodCount: parseInt(res.data) },
-          });
-          localStorage.setItem(
-            "admin",
-            JSON.stringify({ ...admin, prodCount: parseInt(res.data) })
-          );
+  const loadProducts = () => {
+    const {
+      sortkey,
+      sort,
+      currentPage,
+      pageSize,
+      category,
+      subcat,
+      parent
+    } = values
+    getProducts(
+      sortkey,
+      sort,
+      currentPage,
+      pageSize,
+      keyword,
+      category,
+      subcat,
+      parent
+    )
+      .then((res) => {
+        let result = [];
+        res.data.products && res.data.products.map((data) => {
+          const existProduct = admin.products.values.filter(product => product._id === data._id);
+          if (!existProduct.length || res.data.query) {
+            result.push({
+              ...data, page: currentPage
+            })
+          }
+          return result;
         });
-      }
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const loadAllProducts = () => {
-    if (typeof window !== undefined) {
-      if (!localStorage.getItem("admin") || !prodPages.includes(page)) {
-        setLoading(true);
-        getProducts("createdAt", "desc", page, itemPerPage)
-          .then((res) => {
-            const result = res.data.map((product) => ({ ...product, page }));
-
-            dispatch({
-              type: "ADMIN_OBJECT",
-              payload: {
-                prodPages: [...prodPages, page],
-                products: [...products, ...result],
-              },
-            });
-            localStorage.setItem(
-              "admin",
-              JSON.stringify({
-                ...admin,
-                prodPages: [...prodPages, page],
-                products: [...products, ...result],
-              })
-            );
-            setLoading(false);
-          })
-          .catch((error) => {
-            toast.error(error.message);
-            setLoading(false);
-          });
-      }
-    }
-  };
-
-  const removeImage = (public_id) => {
-    return axios.post(
-      `${process.env.REACT_APP_API}/removeimage`,
-      {
-        public_id,
-      },
-      {
-        headers: {
-          authtoken: user ? user.token : "",
-        },
-      }
-    );
-  };
-
-  const handleRemove = (slug, title, images) => {
-    confirm({
-      title: "Are you sure you want to delete " + title + "?",
-      icon: <ExclamationCircleOutlined />,
-      content: "Deleting this product will also delete all its images.",
-      okText: "Yes",
-      okType: "danger",
-      cancelText: "No",
-      onOk() {
-        removeProduct(slug, user.token)
-          .then(async (res) => {
-            for (let i = 0; i < images.length; i++) {
-              await removeImage(images[i].public_id);
+        setValues({
+          ...values,
+          products: res.data.query ? result : [...admin.products.values, ...result],
+          itemsCount: res.data.query ? parseInt(res.data.count)
+            : admin.products.itemsCount > 0
+              ? admin.products.itemsCount
+              : parseInt(res.data.count),
+        });
+        !res.data.query && dispatch({
+          type: "ADMIN_OBJECT_XVII",
+          payload: {
+            products: {
+              ...admin.products,
+              values: [...admin.products.values, ...result],
+              pages: !admin.products.pages.includes(currentPage)
+                ? [...admin.products.pages, currentPage]
+                : admin.products.pages,
+              itemsCount: admin.products.itemsCount > 0
+                ? admin.products.itemsCount
+                : parseInt(res.data.count),
             }
+          }
+        });
+        setLoading(false);
+      })
+      .catch((error) => {
+        toast.error(error.message);
+        setLoading(false);
+      });
+  };
 
-            toast.error(`${res.data.title} is deleted`);
-
-            const newAdminProducts = admin.products.filter(
-              (product) => product.slug !== slug
-            );
-
-            const newProdCount = parseInt(admin.prodCount) - 1;
-
-            dispatch({
-              type: "ADMIN_OBJECT",
-              payload: {
-                ...admin,
-                prodCount: newProdCount,
-                products: newAdminProducts,
-              },
-            });
-            localStorage.setItem(
-              "admin",
-              JSON.stringify({
-                ...admin,
-                prodCount: newProdCount,
-                products: newAdminProducts,
-              })
-            );
-
-            updateChanges(
-              process.env.REACT_APP_ESTORE_ID,
-              "productChange",
-              user.token
-            ).then((res) => {
-              dispatch({
-                type: "ESTORE_INFO",
-                payload: res.data,
-              });
-              localStorage.setItem("estore", JSON.stringify(res.data));
-            });
-          })
-          .catch((error) => {
-            if (error.response.status === 400 || 404)
-              toast.error(error.response.data);
-            else toast.error(error.message);
-          });
-      },
-      onCancel() {},
-    });
+  const groupSearchSubmit = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    loadProducts();
   };
 
   return (
@@ -158,34 +117,32 @@ const AllProducts = () => {
         <div className="col-m-2">
           <AdminNav />
         </div>
-        <div className="col">
+        <div className="col-md-10 bg-white mt-3 mb-5">
           <h4 style={{ margin: "20px 0" }}>
             {loading ? <LoadingOutlined /> : "All Products"}
           </h4>
-          <div className="row">
-            {products &&
-              products
-                .filter((product) => product.page === page)
-                .map((product) => (
-                  <div
-                    key={product._id}
-                    className="col-m-2"
-                    style={{ margin: "0 10px 10px 0" }}
-                  >
-                    <AdminProductCard
-                      product={product}
-                      handleRemove={handleRemove}
-                      canEdit={true}
-                    />
-                  </div>
-                ))}
-          </div>
 
-          <Pagination
-            current={page}
-            total={(prodCount / itemPerPage) * 10}
-            onChange={(value) => setPage(value)}
-            className="text-center pt-3"
+          <form onSubmit={groupSearchSubmit}>
+            <InputSearch
+              keyword={keyword}
+              setKeyword={setKeyword}
+              placeholder="Search product"
+              data={values}
+              setData={setValues}
+            />
+          </form>
+
+          <ProdGroupSearch
+            values={values}
+            setValues={setValues}
+            groupSearchSubmit={groupSearchSubmit}
+          />
+          <br /><br />
+
+          <ProdShowCards
+            values={values}
+            setValues={setValues}
+            loading={loading}
           />
         </div>
       </div>

@@ -1,75 +1,98 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router";
 import { Card, Tooltip, Button } from "antd";
-import {
-  HeartOutlined,
-  ShoppingCartOutlined,
-  DeploymentUnitOutlined,
-} from "@ant-design/icons";
+import { HeartOutlined, ShoppingCartOutlined } from "@ant-design/icons";
 import { Carousel } from "react-responsive-carousel";
 import StarRatings from "react-star-ratings";
-import "react-responsive-carousel/lib/styles/carousel.min.css";
 import _ from "lodash";
+import { toast } from "react-toastify";
+
 import noImage from "../../images/noimage.jpg";
 import ProductListItems from "./ProductListItems";
 import RatingModal from "../modal/RatingModal";
 import showAverage from "../../functions/rating";
-import { addToWishlist } from "../../functions/user";
-import { toast } from "react-toastify";
+import SideDrawer from "../drawer/SideDrawer";
+import LocationModal from "../modal/LocationModal";
 
-const SingleProduct = ({ product, onStarClick, star }) => {
-  const dispatch = useDispatch();
-  const { _id, title, images, variants } = product;
+import { addToWishlist } from "../../functions/user";
+
+import "react-responsive-carousel/lib/styles/carousel.min.css";
+
+const SingleProduct = ({ product, onStarClick, star, unavailable }) => {
+  let dispatch = useDispatch();
+  let history = useHistory();
+
+  const { _id, slug, title, images, variants } = product;
 
   const [variant, setVariant] = useState();
-  const [tooltip, setTooltip] = useState("Click to add");
+  const [tooltip, setTooltip] = useState(unavailable ? "Unavailable" : "Click to add");
+  const [drawer, setDrawer] = useState(false);
+  const [locModalVisible, setLocModalVisible] = useState(false);
 
   const { user } = useSelector((state) => ({ ...state }));
 
   const handleAddToCart = () => {
     let cart = [];
-    if (typeof window !== undefined) {
-      if (localStorage.getItem("cart")) {
-        cart = JSON.parse(localStorage.getItem("cart"));
+    const variantSelect = variant ? variant : variants[0]._id;
+    if (user.address && user.address.addiv3) {
+      if (typeof window !== undefined) {
+        if (localStorage.getItem("cart")) {
+          cart = JSON.parse(localStorage.getItem("cart"));
+        }
+        const existProduct = cart.filter(product =>
+          product._id === _id && product.variant === variantSelect
+        );
+        if (existProduct[0]) {
+          cart = cart.map(product =>
+            product._id === _id && product.variant === variantSelect
+              ? { ...product, count: product.count + 1 }
+              : product
+          );
+        } else {
+          cart.push({
+            ...product,
+            count: 1,
+            variant: variantSelect,
+          });
+        }
+        let unique = _.uniqWith(cart, _.isEqual);
+        dispatch({
+          type: "INPUTS_OBJECT_IX",
+          payload: {cart: unique},
+        });
+        localStorage.setItem("cart", JSON.stringify(unique));
+        setDrawer(true);
+        setTooltip("Added");
       }
-
-      cart.push({
-        ...product,
-        count: 1,
-        variant: variant ? variant : variants[0]._id,
-      });
-
-      let unique = _.uniqWith(cart, _.isEqual);
-      localStorage.setItem("cart", JSON.stringify(unique));
-      setTooltip("Added");
-
-      dispatch({
-        type: "ADD_TO_CART",
-        payload: unique,
-      });
-
-      dispatch({
-        type: "SET_VISIBLE",
-        payload: true,
-      });
+    } else {
+      setLocModalVisible(true);
     }
   };
 
   const handleAddToWishlist = (e) => {
     e.preventDefault();
 
-    addToWishlist(product._id, user.token).then((res) => {
-      let newWishlist = user.wishlist ? user.wishlist : [];
+    if (user && user.token) {
+      const existWishlist = user.wishlist.filter((p) => p._id === product._id);
 
-      newWishlist.push(product);
-
-      dispatch({
-        type: "USER_WISHLIST",
-        payload: { ...user, wishlist: newWishlist },
+      if (existWishlist.length > 0) {
+        toast.warning("Product already in wishlist");
+      } else {
+        addToWishlist(product._id, user.token).then((res) => {
+          dispatch({
+            type: "LOGGED_IN_USER_IV",
+            payload: { wishlist: res.data.wishlist },
+          });
+          toast.success("Added to wishlist");
+        });
+      }
+    } else {
+      history.push({
+        pathname: "/login",
+        state: { from: `/product/${slug}` },
       });
-
-      toast.success("Added to wishlist");
-    });
+    }
   };
 
   return (
@@ -94,7 +117,6 @@ const SingleProduct = ({ product, onStarClick, star }) => {
         <h3 className="pt-3 pl-3 m-0">{title}</h3>
 
         <div className="pb-3 pl-2 m-1">{showAverage(product, "18px")}</div>
-
         <Card
           actions={[
             <div onClick={handleAddToWishlist}>
@@ -119,33 +141,32 @@ const SingleProduct = ({ product, onStarClick, star }) => {
                 starRatedColor="red"
               />
             </RatingModal>,
-            <>
-              <DeploymentUnitOutlined className="text-success" /> <br /> Connect
-            </>,
           ]}
         >
           <ProductListItems product={product} setVariant={setVariant} />
 
           <Tooltip title={tooltip}>
-            <Button
-              type="primary"
-              size="large"
-              onClick={handleAddToCart}
-              style={{ width: "100%" }}
-              disabled={product.quantity < 1}
-            >
-              <ShoppingCartOutlined />{" "}
-              {product.quantity < 1 ? "Out of stock" : "Add to Cart"}
-            </Button>
+            {(product.quantity < 1 || unavailable) ?
+              <div align="center" style={{
+                width: "100%",
+                border: "1px solid #999",
+                padding: "5px",
+                color: "#999"
+              }}>
+              {product.quantity < 1 ? "Out of stock" : unavailable ? "Unavailable" : ""}
+              </div> :
+              <Button
+                type="primary"
+                size="large"
+                onClick={handleAddToCart}
+                style={{ width: "100%" }}
+              >
+                <ShoppingCartOutlined /> Add to Cart
+              </Button>}
           </Tooltip>
 
           <Button
-            onClick={() => {
-              dispatch({
-                type: "SET_VISIBLE",
-                payload: true,
-              });
-            }}
+            onClick={() => {setDrawer(true)}}
             type="secondary"
             style={{ width: "100%", marginTop: "15px" }}
           >
@@ -153,6 +174,11 @@ const SingleProduct = ({ product, onStarClick, star }) => {
           </Button>
         </Card>
       </div>
+      <SideDrawer drawer={drawer} setDrawer={setDrawer} />
+      <LocationModal
+        locModalVisible={locModalVisible}
+        setLocModalVisible={setLocModalVisible}
+      />
     </>
   );
 };

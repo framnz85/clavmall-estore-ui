@@ -1,116 +1,72 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { Button } from "antd";
 import { toast } from "react-toastify";
-import { Radio } from "antd";
-import { CheckCircleOutlined } from "@ant-design/icons";
-import { updateEstore } from "../../../functions/estore";
 import AdminNav from "../../../components/nav/AdminNav";
-import CarouselCreateUpload from "../../../components/forms/CarouselCreateUpload";
+import ThemeColor from "../../../components/forms/carousel/ThemeColor";
+import ImageCarousel from "../../../components/forms/carousel/ImageCarousel";
+import TextCarousel from "../../../components/forms/carousel/TextCarousel";
+import HomepageSetting from "../../../components/forms/carousel/HomepageSetting";
+import { updateEstore } from "../../../functions/estore";
 
-const themeColors = [
-  { head: "#009A57", txt: "" },
-  { head: "#4169E1", txt: "#ceebfd" },
-  { head: "#DC143C", txt: "#ffd4cc" },
-  { head: "#ff6933", txt: "#ffdacc" },
-  { head: "#8A2BE2", txt: "#e6d2f9" },
-  { head: "#333333", txt: "#d9d9d9" },
-  { head: "#a52a2a", txt: "#f5d6d6" },
-  { head: "#ccad00", txt: "#fffbe6" },
-];
+const initialState = {
+  carouselImages: [],
+  textCarousel: [],
+  showHomeCarousel: false,
+  showRandomItems: false,
+  showCategories: false,
+  showNewArrival: false,
+  showBestSeller: false,
+  headerColor: "",
+  carouselColor: "",
+  estoreChange: 0,
+};
 
 const ManageHomeCarousel = () => {
   let dispatch = useDispatch();
+
+  const [values, setValues] = useState(initialState);
   const [loading, setLoading] = useState(false);
 
   const { estore, user } = useSelector((state) => ({ ...state }));
 
-  const handleSubmit = (echange) => {
+  useEffect(() => {
+    loadEstore();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const loadEstore = () => {
+    if (estore) {
+      setValues({
+        ...values,
+        ...estore,
+      })
+    }
+  }
+
+  const handleSubmit = () => {
+    const echange = estore.estoreChange > 0 ? estore.estoreChange + 1 : 1;
+
     setLoading(true);
-    echange++;
     updateEstore(
       process.env.REACT_APP_ESTORE_ID,
-      { ...estore, estoreChange: echange },
+      { ...estore, ...values, estoreChange: echange },
       user.token
     )
       .then((res) => {
+        setValues({
+          ...values,
+          estoreChange: echange
+        });
+        dispatch({
+          type: "ESTORE_INFO_XIII",
+          payload: res.data,
+        });
         toast.success(`Home setting successfully updated`);
-        dispatch({
-          type: "ESTORE_INFO",
-          payload: res.data,
-        });
-        localStorage.setItem("estore", JSON.stringify(res.data));
         setLoading(false);
       })
       .catch((error) => {
         toast.error(error.message);
         setLoading(false);
-      });
-  };
-
-  const handleChange = (e, public_id) => {
-    const { carouselImages } = estore;
-    const index = carouselImages.findIndex(
-      (image) => image.public_id === public_id
-    );
-    carouselImages[index] = {
-      ...carouselImages[index],
-      carouselURL: e.target.value,
-    };
-    dispatch({
-      type: "ESTORE_INFO",
-      payload: {
-        ...estore,
-        carouselImages,
-      },
-    });
-    localStorage.setItem(
-      "estore",
-      JSON.stringify({ ...estore, carouselImages })
-    );
-  };
-
-  const handleTextChange = (e, id) => {
-    const { textCarousel } = estore;
-    const index = textCarousel.findIndex((txt) => txt.id === id);
-    textCarousel[index] = {
-      ...textCarousel[index],
-      text: e.target.value,
-    };
-    dispatch({
-      type: "ESTORE_INFO",
-      payload: {
-        ...estore,
-        textCarousel,
-      },
-    });
-    localStorage.setItem("estore", JSON.stringify({ ...estore, textCarousel }));
-  };
-
-  const onColorChange = (e, echange) => {
-    const index = themeColors.findIndex(
-      (color) => color.head === e.target.value
-    );
-    echange++;
-
-    updateEstore(
-      process.env.REACT_APP_ESTORE_ID,
-      {
-        ...estore,
-        headerColor: e.target.value,
-        carouselColor: themeColors[index].txt,
-        estoreChange: echange,
-      },
-      user.token
-    )
-      .then((res) => {
-        dispatch({
-          type: "ESTORE_INFO",
-          payload: res.data,
-        });
-        localStorage.setItem("estore", JSON.stringify(res.data));
-      })
-      .catch((error) => {
-        toast.error(error.message);
       });
   };
 
@@ -124,59 +80,38 @@ const ManageHomeCarousel = () => {
           <h4 style={{ margin: "20px 0" }}>Manage Home</h4>
           <hr />
 
-          <div className="p-3">
-            <label>
-              <b>Theme Color</b>
-            </label>
+          <ThemeColor
+            values={values}
+            setValues={setValues}
+          />
+          <br /><br />
 
-            <br />
-            <Radio.Group
-              defaultValue={estore.headerColor}
-              size="large"
-              onChange={(e) => onColorChange(e, estore.estoreChange)}
-            >
-              {themeColors.map((color) => (
-                <Radio.Button
-                  value={color.head}
-                  key={color.head}
-                  style={{
-                    color: "#ffffff",
-                    backgroundColor: color.head,
-                    width: "80px",
-                  }}
-                >
-                  {color.head === estore.headerColor ? (
-                    <CheckCircleOutlined style={{ fontSize: "20px" }} />
-                  ) : (
-                    <span
-                      style={{
-                        color: color.head,
-                      }}
-                    >
-                      .
-                    </span>
-                  )}
-                </Radio.Button>
-              ))}
-            </Radio.Group>
-          </div>
+          <ImageCarousel
+            values={values}
+            setValues={setValues}
+            loading={loading}
+            setLoading={setLoading}
+          />
+          <br /><br />
 
-          <div className="p-3">
-            <br />
+          <TextCarousel values={values} setValues={setValues} /><br />
 
-            <label>
-              <b>Image Carousel</b>
-            </label>
+          <HomepageSetting values={values} setValues={setValues} />
 
-            <br />
-            <CarouselCreateUpload
-              loading={loading}
-              setLoading={setLoading}
-              handleSubmit={() => handleSubmit(estore.estoreChange)}
-              handleChange={handleChange}
-              handleTextChange={handleTextChange}
-            />
-          </div>
+          <Button
+            onClick={handleSubmit}
+            type="primary"
+            className="mb-3"
+            block
+            shape="round"
+            size="large"
+            disabled={loading}
+            style={{ margin: "30px 30px 20px 15px", width: "150px" }}
+          >
+            Save Setting
+          </Button>
+          <br />
+          <br />
         </div>
       </div>
     </div>

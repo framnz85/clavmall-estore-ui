@@ -5,7 +5,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { getSubcats } from "../../functions/subcat";
 
 const SubcatList = ({ others }) => {
-  const dispatch = useDispatch();
+  let dispatch = useDispatch();
 
   const { subcats } = useSelector((state) => ({ ...state }));
 
@@ -20,12 +20,11 @@ const SubcatList = ({ others }) => {
     if (typeof window !== undefined) {
       if (!localStorage.getItem("subcats")) {
         setLoading(true);
-        getSubcats().then((subcat) => {
+        getSubcats(50).then((subcat) => {
           dispatch({
-            type: "SUBCAT_LIST",
+            type: "SUBCAT_LIST_VI",
             payload: subcat.data,
           });
-          localStorage.setItem("subcats", JSON.stringify(subcat.data));
           setValues(subcat.data);
           setLoading(false);
         });

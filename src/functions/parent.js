@@ -7,8 +7,8 @@ export const createParent = async (parent, authToken) =>
     },
   });
 
-export const getParents = async () =>
-  await axios.get(process.env.REACT_APP_API + "/parents");
+export const getParents = async (count) =>
+  await axios.get(process.env.REACT_APP_API + "/parents/" + count);
 
 export const removeParent = async (slug, authToken) =>
   await axios.delete(process.env.REACT_APP_API + "/parent/" + slug, {
@@ -24,5 +24,7 @@ export const updateParent = async (slug, parent, authToken) =>
     },
   });
 
-export const getProductByParent = async (parid) =>
-  await axios.get(process.env.REACT_APP_API + "/parent/products/" + parid);
+export const getProductByParent = async (parid, address) =>
+  await axios.post(process.env.REACT_APP_API + "/parent/products/" + parid, {
+    address,
+  });

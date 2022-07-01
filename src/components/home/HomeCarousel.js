@@ -1,10 +1,10 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { Carousel, Card, Skeleton } from "antd";
+import { Carousel } from "antd";
 import Jumbotron from "../../components/cards/Jumbotron";
 
-const HomeCarousel = ({ loading }) => {
+const HomeCarousel = () => {
   let { estore } = useSelector((state) => ({ ...state }));
 
   const contentStyle = {
@@ -21,21 +21,17 @@ const HomeCarousel = ({ loading }) => {
         style={{ backgroundColor: "#ffffff" }}
       >
         <div className="container">
-          {loading ? (
-            <Card style={{ height: "220px" }}>
-              <Skeleton active></Skeleton>
-            </Card>
-          ) : (
-            <Carousel autoplay>
-              {estore.carouselImages.map((image) => (
+          <Carousel autoplay>
+            {estore.carouselImages
+              .filter(image => image.activation)
+              .map((image) => (
                 <Link key={image.public_id} to={image.carouselURL}>
                   <h3 style={contentStyle}>
                     <img alt="Carousel" src={image.url} />
                   </h3>
                 </Link>
               ))}
-            </Carousel>
-          )}
+          </Carousel>
         </div>
       </div>
       <div
@@ -44,8 +40,8 @@ const HomeCarousel = ({ loading }) => {
       >
         <Jumbotron
           text={estore.textCarousel
-            .filter((txt) => txt.text !== "")
-            .map((txt) => txt.text)}
+            .filter((txt) => txt.name !== "")
+            .map((txt) => txt.name)}
         />
       </div>
     </>

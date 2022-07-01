@@ -1,13 +1,13 @@
 import React from "react";
 import { Drawer, Button } from "antd";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import noImage from "../../images/noimage.jpg";
 
-const SideDrawer = () => {
-  const dispatch = useDispatch();
-  const { cart, drawer } = useSelector((state) => ({ ...state }));
+const SideDrawer = ({drawer, setDrawer}) => {
+  const { inputs } = useSelector((state) => ({ ...state }));
+  const { cart } = inputs;
 
   const imageStyle = {
     width: "100%",
@@ -21,12 +21,7 @@ const SideDrawer = () => {
       title={`Cart (${cart && cart.length})`}
       placement="right"
       closable={false}
-      onClose={() => {
-        dispatch({
-          type: "SET_VISIBLE",
-          payload: false,
-        });
-      }}
+      onClose={() => {setDrawer(false)}}
       visible={drawer}
     >
       {cart &&
@@ -60,12 +55,7 @@ const SideDrawer = () => {
 
       <Link to="/cart">
         <Button
-          onClick={() => {
-            dispatch({
-              type: "SET_VISIBLE",
-              payload: false,
-            });
-          }}
+          onClick={() => { setDrawer(false) }}
           className="text-center btn btn-primary btn-raised btn-block"
         >
           <ShoppingCartOutlined /> Go To Cart

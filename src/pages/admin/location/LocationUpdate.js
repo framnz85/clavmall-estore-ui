@@ -1,69 +1,99 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-import { Button, Select, Divider, Input, Radio } from "antd";
-import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
+import { useDispatch, useSelector } from "react-redux";
+import { Button } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
+
 import AdminNav from "../../../components/nav/AdminNav";
+import LocationDetails from "../../../components/forms/location/LocationDetails";
+
 import { getAddiv3, updateMyAddiv3 } from "./../../../functions/addiv3";
-
-const { Option } = Select;
-
-const initialState = {
-  name: "",
-  minorder: "",
-  maxorder: "",
-  delfee: "",
-  delfeetype: "",
-  discount: "",
-  discounttype: "",
-  servefee: "",
-  servefeetype: "",
-  deltime: "",
-  deltimetype: "",
-};
+import { updateChanges } from "../../../functions/estore";
 
 const LocationUpdate = ({ history, match }) => {
   const { addiv3, coucode, currency } = match.params;
+  let dispatch = useDispatch();
+  let addiv3Exist = [];
+
+  const initialState = {
+    name: "",
+    country: { currency },
+    addiv1: { name: "" },
+    addiv2: { name: "" },
+    addiv3: { name: "" },
+    minorder: "",
+    maxorder: "",
+    delfee: "",
+    delfeetype: "",
+    discount: "",
+    discounttype: "",
+    servefee: "",
+    servefeetype: "",
+    deltime: "",
+    deltimetype: "",
+  };
 
   const [values, setValues] = useState(initialState);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(0);
 
-  const { user } = useSelector((state) => ({ ...state }));
+  const { user, admin } = useSelector((state) => ({ ...state }));
 
   useEffect(() => {
     loadAddiv3();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadAddiv3 = () => {
-    setLoading(true);
-    getAddiv3(coucode, addiv3).then((res) => {
-      const addiv3 = res.data;
-      if (addiv3) {
-        delete addiv3.couid;
-        delete addiv3.adDivId1;
-        delete addiv3.adDivId2;
-        setValues({ ...initialState, ...addiv3 });
-        setLoading(false);
-      } else {
-        history.push("/admin/location");
-      }
-    });
+    if (admin.location && admin.location.addiv3s) {
+      addiv3Exist = admin.location.addiv3s.filter((addiv) => addiv._id === addiv3);
+    }
+
+    if (addiv3Exist.length > 0) {
+      delete addiv3.couid;
+      delete addiv3Exist[0].adDivId1;
+      delete addiv3Exist[0].adDivId2;
+      setValues({
+        ...initialState, ...addiv3Exist[0]
+      });
+    } else {
+      setLoading(1);
+      getAddiv3(coucode, addiv3).then((res) => {
+        const addiv3 = res.data;
+        if (addiv3) {
+          delete addiv3.couid;
+          delete addiv3.adDivId1;
+          delete addiv3.adDivId2;
+          setValues({ ...initialState, ...addiv3 });
+          setLoading(0);
+        } else {
+          history.push("/admin/location");
+        }
+      });
+    }
   };
-
-  const [day, setDay] = useState("");
-  const [dayArray, setDayArray] = useState(
-    Array.from({ length: 30 }, (_, i) => i + 1)
-  );
-
-  const addItem = () => {
-    if (parseInt(day) > 0) setDayArray([...dayArray, day]);
-  };
-
-  const plainOptions = ["%", currency];
-  const timeOptions = ["days", "hours"];
 
   const updateSubmit = () => {
-    setLoading(true);
-    updateMyAddiv3(coucode, addiv3, values, user.token).then(() => {
+    setLoading(1);
+    updateMyAddiv3(coucode, addiv3, values, user.token).then((res) => {
+      updateChanges(
+        process.env.REACT_APP_ESTORE_ID,
+        "locationChange",
+        user.token
+      ).then((res) => {
+        dispatch({
+          type: "ESTORE_INFO_XVI",
+          payload: res.data,
+        });
+      });
+      dispatch({
+        type: "ADMIN_OBJECT_XIV",
+        payload: {
+          location: {
+            ...admin.location,
+            addiv3s: admin.location.addiv3s.map((addiv) =>
+              addiv._id === addiv3 ? res.data : addiv
+            ),
+          }
+        },
+      });
       history.push("/admin/location");
     });
   };
@@ -79,190 +109,18 @@ const LocationUpdate = ({ history, match }) => {
           <h4 style={{ margin: "20px 0" }}>Location Update</h4>
           <hr />
 
-          <div className="form-group">
-            <label>
-              <b>Name</b>
-            </label>
-            <input
-              type="text"
-              name="addiv3"
-              className="form-control"
-              value={values.name}
-              onChange={(e) =>
-                setValues({
-                  ...values,
-                  name: e.target.value,
-                })
-              }
-              placeholder={`Type a name here`}
-              disabled={loading}
-              autoFocus
-            />
-          </div>
-          <div className="form-group">
-            <label>
-              <b>Minimum Order Amount</b>
-            </label>
-            <input
-              type="text"
-              value={values.minorder}
-              className="form-control"
-              disabled={loading}
-              onChange={(e) =>
-                setValues({ ...values, minorder: e.target.value })
-              }
-              placeholder={`Enter "0" if no minimum amount`}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>
-              <b>Maximum Order Amount (No Delivery Fee above this amount)</b>
-            </label>
-            <input
-              type="text"
-              value={values.maxorder}
-              className="form-control"
-              disabled={loading}
-              onChange={(e) =>
-                setValues({ ...values, maxorder: e.target.value })
-              }
-              placeholder={`Enter "0" if no Delivery Fee, "9999999" if with Delivery Fee whatever the amount`}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>
-              <b>Delivery Fee</b>
-            </label>
-            <input
-              type="text"
-              value={values.delfee}
-              className="form-control"
-              disabled={
-                loading ||
-                parseFloat(values.maxorder) === 0 ||
-                values.maxorder.length === 0
-              }
-              onChange={(e) => setValues({ ...values, delfee: e.target.value })}
-              required
-            />
-            In:{" "}
-            <Radio.Group
-              options={plainOptions}
-              onChange={(e) =>
-                setValues({ ...values, delfeetype: e.target.value })
-              }
-              value={values.delfeetype}
-            />
-          </div>
-          <div className="form-group">
-            <label>
-              <b>Discount</b>
-            </label>
-            <input
-              type="text"
-              value={values.discount}
-              className="form-control"
-              disabled={loading}
-              onChange={(e) =>
-                setValues({ ...values, discount: e.target.value })
-              }
-              placeholder={`Enter "0" if no Discount`}
-              required
-            />
-            In:{" "}
-            <Radio.Group
-              options={plainOptions}
-              onChange={(e) =>
-                setValues({ ...values, discounttype: e.target.value })
-              }
-              value={values.discounttype}
-            />
-          </div>
-          <div className="form-group">
-            <label>
-              <b>Service Fee</b>
-            </label>
-            <input
-              type="text"
-              value={values.servefee}
-              className="form-control"
-              disabled={loading}
-              onChange={(e) =>
-                setValues({ ...values, servefee: e.target.value })
-              }
-              placeholder={`Enter "0" if no Service Fee`}
-              required
-            />
-            In:{" "}
-            <Radio.Group
-              options={plainOptions}
-              onChange={(e) =>
-                setValues({ ...values, servefeetype: e.target.value })
-              }
-              value={values.servefeetype}
-            />
-          </div>
-          <div className="form-group">
-            <label>
-              <b>Delivery Time</b>
-            </label>
-            <Select
-              style={{ width: "100%" }}
-              value={values.deltime}
-              onChange={(value) => setValues({ ...values, deltime: value })}
-              disabled={loading}
-              dropdownRender={(menu) => (
-                <div>
-                  {menu}
-                  <Divider style={{ margin: "4px 0" }} />
-                  <div
-                    style={{
-                      display: "flex",
-                      flexWrap: "nowrap",
-                      padding: 8,
-                    }}
-                  >
-                    <Input
-                      style={{ flex: "auto" }}
-                      value={day}
-                      onChange={(e) => setDay(e.target.value)}
-                    />
-                    <span
-                      style={{
-                        flex: "none",
-                        padding: "8px",
-                        display: "block",
-                        cursor: "pointer",
-                      }}
-                      onClick={addItem}
-                    >
-                      <PlusOutlined /> Add item
-                    </span>
-                  </div>
-                </div>
-              )}
-            >
-              {dayArray.map((day) => (
-                <Option key={day}>{day}</Option>
-              ))}
-            </Select>
-            In:{" "}
-            <Radio.Group
-              options={timeOptions}
-              onChange={(e) =>
-                setValues({ ...values, deltimetype: e.target.value })
-              }
-              value={values.deltimetype}
-            />
-          </div>
-
-          {loading && (
+          {loading === 1 && (
             <h4 style={{ margin: "20px 0" }}>
               <LoadingOutlined />
             </h4>
           )}
+
+          <LocationDetails
+            values={values}
+            setValues={setValues}
+            loading={loading}
+            edit={true}
+          />
 
           <Button
             onClick={updateSubmit}

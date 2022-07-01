@@ -4,7 +4,9 @@ import { toast } from "react-toastify";
 import { Button } from "antd";
 import { ArrowRightOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
-import { auth } from "../firebase";
+import { sendPasswordResetEmail } from "firebase/auth";
+
+import { auth } from "../../functions/firebase";
 
 const ForgotPassword = ({ history }) => {
   const [email, setEmail] = useState("");
@@ -23,11 +25,6 @@ const ForgotPassword = ({ history }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const config = {
-      url: process.env.REACT_APP_FORGOT_PASSWORD_REDIRECT,
-      handleCodeInApp: true,
-    };
-
     const result = Joi.validate({ email }, schema, {
       abortEarly: false,
     });
@@ -39,14 +36,12 @@ const ForgotPassword = ({ history }) => {
 
     setLoading(true);
 
-    await auth
-      .sendPasswordResetEmail(email, config)
+    sendPasswordResetEmail(auth, email)
       .then(() => {
         setLoading(false);
         setEmail("");
         toast.success(`Check your email for password reset link.`);
-      })
-      .catch((error) => {
+      }).catch((error) => {
         setLoading(false);
         toast.error(error.message);
       });

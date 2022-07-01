@@ -2,11 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Joi from "joi-browser";
 import { toast } from "react-toastify";
-import { getProduct, updateProduct } from "../../../functions/product";
+import { Button, Switch } from "antd";
+
 import AdminNav from "../../../components/nav/AdminNav";
-import ProductUpdateForm from "../../../components/forms/ProductUpdateForm";
+import ProductImage from "../../../components/forms/product/ProductImage";
+import ProductInputsLoad from "../../../components/forms/product/ProductInputsLoad";
+import NotAvailableForms from "../../../components/common/NotAvailableForm";
+import NotAvailableCard from "../../../components/common/NotAvailableCard";
+
+import { getProduct, updateProduct } from "../../../functions/product";
 import { getCategorySubcats } from "../../../functions/category";
-import FileUpdateUpload from "../../../components/forms/FileUpdateUpload";
 import { updateChanges } from "../../../functions/estore";
 
 const initialState = {
@@ -20,14 +25,22 @@ const initialState = {
   parent: "",
   quantity: "",
   sold: "",
-  variants: [],
+  variants: [{ name: "", quantity: "" }],
   images: [],
+  noAvail: [],
+  activate: false,
+  itemsCount: 0,
+  pageSize: 10,
+  currentPage: 1,
+  sortkey: "",
+  sort: -1,
+  searchQuery: "",
 };
 
 const ProductUpdate = ({ history, match }) => {
-  const dispatch = useDispatch();
+  let dispatch = useDispatch();
 
-  const { user, admin, subcats, products } = useSelector((state) => ({
+  const { user, admin, products } = useSelector((state) => ({
     ...state,
   }));
   const { slug } = match.params;
@@ -42,17 +55,16 @@ const ProductUpdate = ({ history, match }) => {
   }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadProduct = () => {
-    const prodValues = admin.products.filter(
+    const prodValues = admin.products.values.filter(
       (product) => product.slug === slug
     );
     if (prodValues.length < 1) {
       getProduct(slug).then((prod) => {
-        admin.products.push({ ...prod.data, page: 1 });
+        admin.products.values.push({ ...prod.data, page: 1 });
         dispatch({
-          type: "ADMIN_OBJECT",
+          type: "ADMIN_OBJECT_XIX",
           payload: admin,
         });
-        localStorage.setItem("admin", JSON.stringify(admin));
         setValues({
           ...values,
           ...prod.data,
@@ -60,16 +72,13 @@ const ProductUpdate = ({ history, match }) => {
           subcats: prod.data.subcats.map((sub) => sub._id),
           parent: prod.data.parent._id,
         });
-        const subcatValues = subcats.filter(
-          (subcat) => subcat.parent === prodValues[0].category._id
-        );
-        if (subcatValues.length < 1) {
-          getCategorySubcats(prod.data.category._id).then((res) => {
-            setSubcatOptions(res.data);
+        getCategorySubcats(prod.data.category._id).then((res) => {
+          setSubcatOptions(res.data);
+          dispatch({
+            type: "SUBCAT_LIST_VIII",
+            payload: res.data,
           });
-        } else {
-          setSubcatOptions(subcatValues);
-        }
+        });
       });
     } else {
       const categoryId = prodValues[0].category._id || prodValues[0].category;
@@ -81,16 +90,13 @@ const ProductUpdate = ({ history, match }) => {
         subcats: prodValues[0].subcats.map((sub) => sub._id || sub),
         parent: parentId,
       });
-      const subcatValues = subcats.filter(
-        (subcat) => subcat.parent === categoryId
-      );
-      if (subcatValues.length < 1) {
-        getCategorySubcats(categoryId).then((res) => {
-          setSubcatOptions(res.data);
+      getCategorySubcats(categoryId).then((res) => {
+        setSubcatOptions(res.data);
+        dispatch({
+          type: "SUBCAT_LIST_VIII",
+          payload: res.data,
         });
-      } else {
-        setSubcatOptions(subcatValues);
-      }
+      });
     }
   };
 
@@ -109,23 +115,32 @@ const ProductUpdate = ({ history, match }) => {
     sold: Joi.number(),
     variants: Joi.array(),
     images: Joi.array(),
+    noAvail: Joi.array(),
+    activate: Joi.boolean(),
   };
 
   const handleSubmit = (e) => {
     const { supplierPrice, markup, page } = values;
+    const replicateValue = { ...values };
 
     e.preventDefault();
 
-    delete values.createdAt;
-    delete values.updatedAt;
-    delete values.ratings;
-    delete values.page;
-    delete values.__v;
+    delete replicateValue.createdAt;
+    delete replicateValue.updatedAt;
+    delete replicateValue.ratings;
+    delete replicateValue.page;
+    delete replicateValue.__v;
+    delete replicateValue.itemsCount;
+    delete replicateValue.pageSize;
+    delete replicateValue.currentPage;
+    delete replicateValue.sortkey;
+    delete replicateValue.sort;
+    delete replicateValue.searchQuery;
 
     const validate = Joi.validate(
       {
-        ...values,
-        supplierPrice: supplierPrice ? supplierPrice : 0,
+        ...replicateValue,
+        supplierPrice: replicateValue.supplierPrice ? supplierPrice : 0,
         markup: markup ? markup : 0,
       },
       schema,
@@ -158,26 +173,26 @@ const ProductUpdate = ({ history, match }) => {
       .then((res) => {
         toast.success(`${res.data.title} is updated`);
 
-        const newAdminProducts = admin.products.map((product) =>
+        const newAdminProducts = admin.products.values.map((product) =>
           product.slug === slug ? { ...res.data, page } : product
         );
 
         dispatch({
-          type: "ADMIN_OBJECT",
-          payload: { ...admin, products: newAdminProducts },
+          type: "ADMIN_OBJECT_XIX",
+          payload: {
+            products: {
+              ...admin.products,
+              values: newAdminProducts,
+            }
+          }
         });
-        localStorage.setItem(
-          "admin",
-          JSON.stringify({ ...admin, products: newAdminProducts })
-        );
 
         const newProducts = products.filter((product) => product.slug !== slug);
 
         dispatch({
-          type: "PRODUCT_LIST",
+          type: "PRODUCT_LIST_XIII",
           payload: newProducts,
         });
-        localStorage.setItem("products", JSON.stringify(newProducts));
 
         updateChanges(
           process.env.REACT_APP_ESTORE_ID,
@@ -185,10 +200,9 @@ const ProductUpdate = ({ history, match }) => {
           user.token
         ).then((res) => {
           dispatch({
-            type: "ESTORE_INFO",
+            type: "ESTORE_INFO_XX",
             payload: res.data,
           });
-          localStorage.setItem("estore", JSON.stringify(res.data));
         });
         setLoading(false);
         history.push("/admin/products");
@@ -199,31 +213,6 @@ const ProductUpdate = ({ history, match }) => {
         else toast.error(error.message);
         setLoading(false);
       });
-  };
-
-  const handleChange = (e) => {
-    setValues({ ...values, [e.target.name]: e.target.value });
-  };
-
-  const handleCategoryChange = (e) => {
-    e.preventDefault();
-    setValues({ ...values, subcats: [], category: e.target.value });
-
-    const subcatValues = subcats.filter(
-      (subcat) => subcat.parent === e.target.value
-    );
-    if (subcatValues.length < 1) {
-      getCategorySubcats(e.target.value).then((res) => {
-        setSubcatOptions(res.data);
-      });
-    } else {
-      setSubcatOptions(subcatValues);
-    }
-  };
-
-  const handleParentChange = (e) => {
-    e.preventDefault();
-    setValues({ ...values, parent: e.target.value });
   };
 
   return (
@@ -237,26 +226,58 @@ const ProductUpdate = ({ history, match }) => {
           <h4 style={{ margin: "20px 0" }}>Product Update</h4>
           <hr />
 
-          <div className="p-3">
-            <FileUpdateUpload
-              values={values}
-              setValues={setValues}
-              setLoading={setLoading}
-            />
-          </div>
-
-          <ProductUpdateForm
-            setValues={setValues}
-            handleSubmit={handleSubmit}
-            handleChange={handleChange}
-            handleCategoryChange={handleCategoryChange}
-            handleParentChange={handleParentChange}
+          <ProductImage
             values={values}
-            loading={loading}
-            subcatOptions={subcatOptions}
-            saveVariant={saveVariant}
-            setSaveVariant={setSaveVariant}
+            setValues={setValues}
+            width={514}
+            height={514}
+            edit={true}
           />
+
+          <ProductInputsLoad
+            values={values}
+            setValues={setValues}
+            loading={loading}
+            handleSubmit={handleSubmit}
+            subcatOptions={subcatOptions}
+            setSubcatOptions={setSubcatOptions}
+            setSaveVariant={setSaveVariant}
+            updatingProduct={true}
+          />
+
+          <h4 style={{ margin: "40px 0 20px 0" }}>Not Available</h4>
+          <hr />
+
+          <NotAvailableForms values={values} setValues={setValues} />
+          <br />
+          <br />
+          <NotAvailableCard values={values} setValues={setValues} />
+          <br />
+
+          <Button
+            onClick={handleSubmit}
+            type="primary"
+            className="mb-3"
+            block
+            shape="round"
+            size="large"
+            disabled={loading}
+            style={{ marginTop: "30px", width: "150px", marginRight: "20px" }}
+          >
+            Update
+          </Button>
+
+          <b>Active</b>
+          <Switch checked={values.activate} onChange={
+            (checked) =>
+              setValues({
+                ...values,
+                activate: checked,
+              })
+          } style={{marginLeft: "10px"}} />
+
+          <br />
+          <br />
         </div>
       </div>
     </div>

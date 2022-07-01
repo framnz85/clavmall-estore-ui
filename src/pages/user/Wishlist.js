@@ -3,10 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import UserNav from "../../components/nav/UserNav";
 import { getWishlist, removeWishlist } from "../../functions/user";
 import { LoadingOutlined } from "@ant-design/icons";
-import AdminProductCard from "../../components/cards/AdminProductCard";
+import AdminProdCard from "../../components/cards/AdminProdCard";
 
 const Wishlist = () => {
-  const dispatch = useDispatch();
+  let dispatch = useDispatch();
 
   const [loading, setLoading] = useState(false);
 
@@ -21,8 +21,8 @@ const Wishlist = () => {
       setLoading(true);
       getWishlist(user.token).then((res) => {
         dispatch({
-          type: "USER_WISHLIST",
-          payload: { ...user, wishlist: res.data.wishlist },
+          type: "LOGGED_IN_USER_V",
+          payload: { wishlist: res.data.wishlist },
         });
         setLoading(false);
       });
@@ -36,8 +36,8 @@ const Wishlist = () => {
         user.wishlist.filter((product) => product._id !== productId);
 
       dispatch({
-        type: "USER_WISHLIST",
-        payload: { ...user, wishlist: newWishlist },
+        type: "LOGGED_IN_USER_V",
+        payload: { wishlist: newWishlist },
       });
     });
   };
@@ -52,7 +52,7 @@ const Wishlist = () => {
           <h4 style={{ margin: "20px 0" }}>
             {loading ? <LoadingOutlined /> : "Wishlist"}
           </h4>
-          <div className="row">
+          <div>
             {user.wishlist &&
               user.wishlist.map((product) => (
                 <div
@@ -60,7 +60,7 @@ const Wishlist = () => {
                   className="col-m-2"
                   style={{ margin: "0 10px 10px 0" }}
                 >
-                  <AdminProductCard
+                  <AdminProdCard
                     product={product}
                     handleRemove={handleRemove}
                     canEdit={false}

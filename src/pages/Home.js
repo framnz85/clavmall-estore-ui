@@ -9,8 +9,9 @@ import RandomProducts from "../components/home/RandomProducts";
 import ItemsForYou from "../components/home/ItemsForYou";
 import SubcatList from "../components/home/SubcatList";
 import ParentList from "./../components/home/ParentList";
+import Footer from "../components/home/Footer";
 
-const Home = ({ loading }) => {
+const Home = () => {
   const { estore } = useSelector((state) => ({ ...state }));
 
   const {
@@ -24,7 +25,7 @@ const Home = ({ loading }) => {
   return (
     <>
       {!estore.name && <LoadingOutlined />}
-      {showHomeCarousel && <HomeCarousel loading={loading} />}
+      {showHomeCarousel && <HomeCarousel />}
       {showRandomItems && <RandomProducts />}
       {showCategories && <CategoryProducts />}
       {showNewArrival && <NewArrival />}
@@ -36,6 +37,7 @@ const Home = ({ loading }) => {
           <ParentList />
         </div>
       )}
+      <Footer />
     </>
   );
 };

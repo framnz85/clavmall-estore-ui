@@ -4,10 +4,13 @@ import Joi from "joi-browser";
 import { toast } from "react-toastify";
 import { Button } from "antd";
 import { MailOutlined } from "@ant-design/icons";
-import { auth } from "../firebase";
+import { sendSignInLinkToEmail } from "firebase/auth";
+
+import { auth } from "../../functions/firebase";
 
 const Register = ({ history }) => {
   const [email, setEmail] = useState("");
+  const [succeed, setSucceed] = useState("");
   const [loading, setLoading] = useState(false);
 
   let { user } = useSelector((state) => ({ ...state }));
@@ -24,7 +27,7 @@ const Register = ({ history }) => {
     e.preventDefault();
 
     const config = {
-      url: process.env.REACT_APP_REGISTER_REDIRECT_URL,
+      url: window.location.href + "/complete",
       handleCodeInApp: true,
     };
 
@@ -39,54 +42,54 @@ const Register = ({ history }) => {
 
     setLoading(true);
 
-    await auth.sendSignInLinkToEmail(email, config);
-
-    toast.success(
-      `Email is sent to ${email}. Click the link to complete your registration.`
-    );
-
-    setLoading(false);
-
-    window.localStorage.setItem("emailForRegistration", email);
-
-    setEmail("");
+    sendSignInLinkToEmail(auth, email, config).then(async (result) => {
+      toast.success(
+        `Email is sent to ${email}. Click the link attached to that email to complete your registration.`
+      );
+      window.localStorage.setItem("emailForRegistration", email);
+      setEmail("");
+      setSucceed(email)
+      setLoading(false);
+    }).catch((error) => {
+      toast.error(error.message);
+      setLoading(false);
+    });
   };
-
-  const registerForm = () => (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="email"
-        className="form-control"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Enter Email"
-        autoFocus
-        style={{ marginTop: "20px" }}
-        disabled={loading}
-      />
-
-      <Button
-        onClick={handleSubmit}
-        type="primary"
-        className="mb-3"
-        block
-        shape="round"
-        icon={<MailOutlined />}
-        size="large"
-        disabled={loading}
-        style={{ marginTop: "30px" }}
-      >
-        Register with Email/Password
-      </Button>
-    </form>
-  );
 
   return (
     <div className="container p-5">
       <div className="row">
         <div className="col-md-6 offset-md-3">
           <h4>Register</h4>
-          {registerForm()}
+            <form onSubmit={handleSubmit}>
+              <input
+                type="email"
+                className="form-control"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter Email"
+                autoFocus
+                style={{ marginTop: "20px" }}
+                disabled={loading}
+              />
+
+              <Button
+                onClick={handleSubmit}
+                type="primary"
+                className="mb-3"
+                block
+                shape="round"
+                icon={<MailOutlined />}
+                size="large"
+                disabled={loading}
+                style={{ marginTop: "30px" }}
+              >
+                Register with Email/Password
+              </Button>
+            </form>
+            {succeed && <div align="center" className="alert alert-success" role="alert">
+              Email is sent to {succeed}. Click the link attached to that email to complete your registration.
+            </div>}
         </div>
       </div>
     </div>

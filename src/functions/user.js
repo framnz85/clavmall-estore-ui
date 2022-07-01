@@ -11,8 +11,8 @@ export const userCart = async (cart, authToken) =>
     }
   );
 
-export const getUserCart = async (authToken) =>
-  await axios.get(process.env.REACT_APP_API + "/user/cart", {
+export const getUserCart = async (authToken, coucode, addiv3Id) =>
+  await axios.get(process.env.REACT_APP_API + "/user/cart/" + coucode + "/" + addiv3Id, {
     headers: {
       authToken,
     },
@@ -25,12 +25,16 @@ export const emptyUserCart = async (authToken) =>
     },
   });
 
-export const saveUserAddress = async (authToken, address) =>
-  await axios.post(process.env.REACT_APP_API + "/user/address", address, {
-    headers: {
-      authToken,
-    },
-  });
+export const saveUserAddress = async (authToken, address, homeAddress, coupon) =>
+  await axios.post(
+    process.env.REACT_APP_API + "/user/address",
+    { address, homeAddress, coupon },
+    {
+      headers: {
+        authToken,
+      },
+    }
+  );
 
 export const applyCoupon = async (authToken, coupon) =>
   await axios.post(
@@ -43,10 +47,10 @@ export const applyCoupon = async (authToken, coupon) =>
     }
   );
 
-export const createOrder = async (stripeResponse, authToken) =>
+export const createOrder = async (orderObjects, authToken) =>
   await axios.post(
     process.env.REACT_APP_API + "/user/order",
-    { stripeResponse },
+    { orderObjects },
     {
       headers: {
         authToken,
@@ -54,8 +58,40 @@ export const createOrder = async (stripeResponse, authToken) =>
     }
   );
 
-export const getUserOrders = async (authToken) =>
-  await axios.get(process.env.REACT_APP_API + "/user/orders", {
+export const getUserOrders = async (
+  sortkey,
+  sort,
+  currentPage,
+  pageSize,
+  searchQuery,
+  minPrice,
+  maxPrice,
+  dateFrom,
+  dateTo,
+  status,
+  payment,
+  authToken
+) =>
+  await axios.post(process.env.REACT_APP_API + "/user/orders", {
+    sortkey,
+    sort,
+    currentPage,
+    pageSize,
+    searchQuery,
+    minPrice,
+    maxPrice,
+    dateFrom,
+    dateTo,
+    status,
+    payment,
+  }, {
+    headers: {
+      authToken,
+    },
+  });
+
+export const getUserOrder = async (orderId, authToken) =>
+  await axios.get(process.env.REACT_APP_API + "/user/order/" + orderId, {
     headers: {
       authToken,
     },
@@ -89,3 +125,14 @@ export const addToWishlist = async (productId, authToken) =>
       },
     }
   );
+
+export const updateProfile = async (values, authToken) =>
+  await axios.put(
+    process.env.REACT_APP_API + "/user/profile",
+    { values },
+    {
+      headers: {
+        authToken,
+      },
+    }
+  ); 

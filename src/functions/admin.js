@@ -1,17 +1,49 @@
 import axios from "axios";
 
-export const getOrders = async (authToken) => {
-  return await axios.get(process.env.REACT_APP_API + "/admin/orders", {
+export const getOrders = async (
+  sortkey,
+  sort,
+  currentPage,
+  pageSize,
+  searchQuery,
+  minPrice,
+  maxPrice,
+  dateFrom,
+  dateTo,
+  status,
+  payment,
+  authToken
+) => {
+  return await axios.post(process.env.REACT_APP_API + "/admin/orders", {
+    sortkey,
+    sort,
+    currentPage,
+    pageSize,
+    searchQuery,
+    minPrice,
+    maxPrice,
+    dateFrom,
+    dateTo,
+    status,
+    payment,
+  }, {
     headers: {
       authToken,
     },
   });
 };
 
-export const changeStatus = async (orderId, orderStatus, authToken) => {
+export const getOrder = async (orderId, authToken) =>
+  await axios.get(process.env.REACT_APP_API + "/admin/order/" + orderId, {
+    headers: {
+      authToken,
+    },
+  });
+
+export const changeStatus = async (data, authToken) => {
   return await axios.put(
     process.env.REACT_APP_API + "/admin/order-status",
-    { orderId, orderStatus },
+    { data },
     {
       headers: {
         authToken,

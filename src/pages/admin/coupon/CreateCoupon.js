@@ -1,77 +1,85 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Button, Modal } from "antd";
-import {
-  LoadingOutlined,
-  DeleteOutlined,
-  ExclamationCircleOutlined,
-} from "@ant-design/icons";
+import Joi from "joi-browser";
+import { Button } from "antd";
 import { toast } from "react-toastify";
-import DatePicker from "react-datepicker";
-import {
-  getCoupon,
-  removeCoupon,
-  createCoupon,
-} from "../../../functions/coupon";
 import "react-datepicker/dist/react-datepicker.css";
 import AdminNav from "../../../components/nav/AdminNav";
-import LocalSearch from "../../../components/forms/LocalSearch";
+import CouponInputs from "../../../components/forms/coupon/CouponInputs";
+import CouponTable from "../../../components/forms/coupon/CouponTable";
+import { createCoupon } from "../../../functions/coupon";
 
-const { confirm } = Modal;
+const initialState = {
+  name: "",
+  code: "",
+  expiry: "",
+  discount: "",
+  coupons: [],
+  itemsCount: 0,
+  pageSize: 20,
+  currentPage: 1,
+  sortkey: "",
+  sort: -1,
+  searchQuery: "",
+};
 
 const CreateCoupon = () => {
   let dispatch = useDispatch();
 
-  const [name, setName] = useState("");
-  const [expiry, setExpiry] = useState("");
-  const [discount, setDiscount] = useState("");
+  const [values, setValues] = useState(initialState);
   const [loading, setLoading] = useState(false);
-  const [keyword, setKeyword] = useState("");
 
-  const { user, coupon } = useSelector((state) => ({
+  const { user, admin } = useSelector((state) => ({
     ...state,
   }));
 
-  useEffect(() => {
-    loadCoupons();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const loadCoupons = () => {
-    if (typeof window !== undefined) {
-      if (!localStorage.getItem("coupon")) {
-        setLoading(true);
-        getCoupon().then((coupon) => {
-          dispatch({
-            type: "COUPON_LIST",
-            payload: { coupons: coupon.data },
-          });
-          localStorage.setItem(
-            "coupon",
-            JSON.stringify({ coupons: coupon.data })
-          );
-          setLoading(false);
-        });
-      }
-    }
+  const schema = {
+    name: Joi.string().min(1).max(256).required(),
+    code: Joi.string().min(3).max(64).required(),
+    discount: Joi.number().required(),
+    expiry: Joi.date().required(),
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setLoading(true);
 
-    createCoupon({ name, expiry, discount }, user.token)
+    const validate = Joi.validate({
+      name: values.name,
+      code: values.code,
+      discount: values.discount,
+      expiry: values.expiry
+    }, schema, {
+      abortEarly: false,
+    });
+
+    if (validate.error) {
+      for (let item of validate.error.details) toast.error(item.message);
+      return;
+    }
+
+    setLoading(true);
+    createCoupon({
+      name: values.name,
+      code: values.code,
+      expiry: values.expiry,
+      discount: values.discount,
+    }, user.token)
       .then((res) => {
+        admin.coupons.push(res.data);
+        setValues({
+          ...values,
+          name: "",
+          code: "",
+          expiry: "",
+          discount: "",
+          coupons: admin.coupons,
+        })
         setLoading(false);
-        setName("");
-        setExpiry("");
-        setDiscount("");
-        toast.success(`"${res.data.name}" is created`);
-        coupon.coupons.push(res.data);
         dispatch({
-          type: "COUPON_LIST",
-          payload: { coupons: [...coupon.coupons] },
+          type: "ADMIN_OBJECT_XII",
+          payload: { coupons: [...admin.coupons] },
         });
-        localStorage.setItem("coupon", JSON.stringify(coupon));
+        toast.success(`"${res.data.name}" is created`);
       })
       .catch((error) => {
         if (error.response.status === 400) toast.error(error.response.data);
@@ -79,45 +87,6 @@ const CreateCoupon = () => {
         setLoading(false);
       });
   };
-
-  const handleRemove = async (couponId, name) => {
-    confirm({
-      title: "Are you sure you want to delete " + name + "?",
-      icon: <ExclamationCircleOutlined />,
-      content: "Make sure no one uses this coupon before deleting.",
-      okText: "Yes",
-      okType: "danger",
-      cancelText: "No",
-      onOk() {
-        setLoading(true);
-        removeCoupon(couponId, user.token)
-          .then((res) => {
-            setLoading(false);
-            toast.error(`"${res.data.name}" deleted.`);
-            const result = coupon.coupons.filter(
-              (coupon) => coupon._id !== couponId
-            );
-            dispatch({
-              type: "COUPON_LIST",
-              payload: { coupons: [...result] },
-            });
-            localStorage.setItem(
-              "coupon",
-              JSON.stringify({ coupons: [...result] })
-            );
-          })
-          .catch((error) => {
-            if (error.response.status === 400) toast.error(error.response.data);
-            else toast.error(error.message);
-            setLoading(false);
-          });
-      },
-      onCancel() {},
-    });
-  };
-
-  const searched = (keyword) => (coupon) =>
-    coupon.name.toLowerCase().includes(keyword);
 
   return (
     <div className="container">
@@ -128,107 +97,38 @@ const CreateCoupon = () => {
 
         <div className="col-md-10 bg-white mt-3 mb-5">
           <h4 style={{ margin: "20px 0" }}>Create Coupon</h4>
-
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>
-                <b>Name</b>
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="form-control"
-                autoFocus
-                required
-                disabled={loading}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>
-                <b>Discount %</b>
-              </label>
-              <input
-                type="text"
-                value={discount}
-                onChange={(e) => setDiscount(e.target.value)}
-                className="form-control"
-                required
-                disabled={loading}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>
-                <b>Expiry</b>
-              </label>
-              <DatePicker
-                className="form-control"
-                selected={new Date()}
-                value={expiry && expiry.toLocaleDateString()}
-                onChange={(date) => setExpiry(date)}
-                required
-              />
-            </div>
-
-            <Button
-              onClick={handleSubmit}
-              type="primary"
-              className="mb-3"
-              block
-              shape="round"
-              size="large"
-              disabled={
-                name.length < 2 || discount === "" || expiry === "" || loading
-              }
-              style={{ marginTop: "30px", width: "150px" }}
-            >
-              Save
-            </Button>
-          </form>
-
           <hr />
-          <h4 style={{ margin: "20px 0" }}>Existing Coupons</h4>
-          <LocalSearch
-            keyword={keyword}
-            setKeyword={setKeyword}
-            placeholder="Search coupon"
+
+          <CouponInputs
+            values={values}
+            setValues={setValues}
+            loading={loading}
+            edit={false}
           />
 
-          {loading && (
-            <h4 style={{ margin: "20px 0" }}>
-              <LoadingOutlined />
-            </h4>
-          )}
+          <Button
+            onClick={handleSubmit}
+            type="primary"
+            className="mb-3"
+            block
+            shape="round"
+            size="large"
+            disabled={
+              values.name.length < 0 || values.code.length < 2 || values.discount === "" || values.expiry === "" || loading
+            }
+            style={{ marginTop: "30px", width: "150px" }}
+          >
+            Save
+          </Button>
 
-          <table className="table table-bordered">
-            <thead className="thead-light">
-              <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Expiry</th>
-                <th scope="col">Discount</th>
-                <th scope="col">Action</th>
-              </tr>
+          <h4 style={{ margin: "20px 0" }}>Existing Coupons</h4>
+          <hr />
 
-              {coupon.coupons &&
-                coupon.coupons.filter(searched(keyword)).map((coupon) => (
-                  <tr key={coupon._id}>
-                    <td>{coupon.name}</td>
-                    <td>{new Date(coupon.expiry).toLocaleDateString()}</td>
-                    <td>{coupon.discount}%</td>
-                    <td>
-                      <span
-                        onClick={() => handleRemove(coupon._id, coupon.name)}
-                        className="btn btn-sm float-right"
-                      >
-                        <DeleteOutlined className="text-danger" />
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-            </thead>
-          </table>
+          <CouponTable
+            values={values}
+            setValues={setValues}
+            setLoading={setLoading}
+          />
         </div>
       </div>
     </div>

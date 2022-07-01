@@ -2,32 +2,44 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Joi from "joi-browser";
 import { toast } from "react-toastify";
-import { updateParent } from "../../../functions/parent";
+import { Button } from "antd";
 import AdminNav from "../../../components/nav/AdminNav";
-import CategoryForm from "../../../components/forms/CategoryForms";
+import ParentInputs from "../../../components/forms/parent/ParentInputs";
+import { updateParent } from "../../../functions/parent";
 import { updateChanges } from "../../../functions/estore";
 
+const initialState = {
+  name: "",
+  itemsCount: 0,
+  pageSize: 20,
+  currentPage: 1,
+  sortkey: "",
+  sort: -1,
+  searchQuery: "",
+};
+
 const ParentUpdate = ({ history, match }) => {
-  const dispatch = useDispatch();
+  let dispatch = useDispatch();
+
+  const [values, setValues] = useState(initialState);
+  const [loading, setLoading] = useState(false);
 
   const { user, parents } = useSelector((state) => ({ ...state }));
 
-  const [name, setName] = useState("");
-  const [loading, setLoading] = useState(false);
-
   useEffect(() => {
-    const loadParent = () => {
-      const parentName = parents.filter(
-        (parent) => parent.slug === match.params.slug
-      );
-      if (parentName[0]) {
-        setName(parentName[0].name);
-      } else {
-        history.push("/admin/parent");
-      }
-    };
     loadParent();
-  }, [history, match, parents]);
+  }, [history, match, parents]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const loadParent = () => {
+    const parentName = parents.filter(
+      (parent) => parent.slug === match.params.slug
+    );
+    if (parentName[0]) {
+      setValues({ ...values, name: parentName[0].name });
+    } else {
+      history.push("/admin/parent");
+    }
+  };
 
   const schema = {
     name: Joi.string().min(2).max(32).required(),
@@ -36,7 +48,7 @@ const ParentUpdate = ({ history, match }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const validate = Joi.validate({ name }, schema, {
+    const validate = Joi.validate({ name: values.name }, schema, {
       abortEarly: false,
     });
 
@@ -47,7 +59,7 @@ const ParentUpdate = ({ history, match }) => {
 
     setLoading(true);
 
-    updateParent(match.params.slug, { name }, user.token)
+    updateParent(match.params.slug, { name: values.name }, user.token)
       .then((res) => {
         setLoading(false);
         toast.success(`"${res.data.name}" is updated.`);
@@ -60,20 +72,18 @@ const ParentUpdate = ({ history, match }) => {
         });
 
         dispatch({
-          type: "PARENT_LIST",
-          payload: [...parents],
+          type: "PARENT_LIST_IX",
+          payload: parents,
         });
-        localStorage.setItem("parents", JSON.stringify(parents));
         updateChanges(
           process.env.REACT_APP_ESTORE_ID,
           "parentChange",
           user.token
         ).then((res) => {
           dispatch({
-            type: "ESTORE_INFO",
+            type: "ESTORE_INFO_XVIII",
             payload: res.data,
           });
-          localStorage.setItem("estore", JSON.stringify(res.data));
         });
         history.push("/admin/parent");
       })
@@ -92,14 +102,29 @@ const ParentUpdate = ({ history, match }) => {
           <AdminNav />
         </div>
         <div className="col-md-10 bg-white mt-3 mb-5">
-          <h4 style={{ margin: "20px 0" }}>Update Parent Product</h4>
-          <CategoryForm
-            handleSubmit={handleSubmit}
-            name={name}
-            setName={setName}
+          <h4 style={{ margin: "20px 0" }}>Update Product Parent</h4>
+          <hr />
+
+          <ParentInputs
+            values={values}
+            setValues={setValues}
             loading={loading}
-            placeholder="Enter a parent type"
+            setLoading={setLoading}
+            edit={false}
           />
+
+          <Button
+            onClick={handleSubmit}
+            type="primary"
+            className="mb-3"
+            block
+            shape="round"
+            size="large"
+            disabled={values.name.length < 2 || loading}
+            style={{ marginTop: "30px", width: "150px" }}
+          >
+            Save
+          </Button>
         </div>
       </div>
     </div>

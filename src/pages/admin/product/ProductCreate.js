@@ -3,11 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import Joi from "joi-browser";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { createProduct } from "../../../functions/product";
+import { Button } from "antd";
 import AdminNav from "../../../components/nav/AdminNav";
-import ProductCreateForm from "../../../components/forms/ProductCreateForm";
-import { getCategorySubcats } from "../../../functions/category";
-import FileCreateUpload from "../../../components/forms/FileCreateUpload";
+import ProductImage from "../../../components/forms/product/ProductImage";
+import ProductInputsLoad from "../../../components/forms/product/ProductInputsLoad";
+import { createProduct } from "../../../functions/product";
 import { updateChanges } from "../../../functions/estore";
 
 const initialState = {
@@ -20,19 +20,18 @@ const initialState = {
   subcats: [],
   parent: "",
   quantity: "",
-  variants: [],
+  variants: [{ name: "", quantity: "" }],
   images: [],
 };
 
 const ProductCreate = ({ history }) => {
-  const dispatch = useDispatch();
+  let dispatch = useDispatch();
 
-  const { user, admin, subcats } = useSelector((state) => ({ ...state }));
+  const { user, admin } = useSelector((state) => ({ ...state }));
 
   const [values, setValues] = useState(initialState);
   const [loading, setLoading] = useState(false);
   const [subcatOptions, setSubcatOptions] = useState([]);
-  const [showSubcat, setshowSubcat] = useState(false);
   const [saveVariant, setSaveVariant] = useState(false);
 
   const schema = {
@@ -115,19 +114,20 @@ const ProductCreate = ({ history }) => {
         setValues({ ...initialState, images: [] });
         initialState.images = [];
 
-        if (admin.products.length > 0) {
-          admin.products.unshift({ ...res.data, page: 1 });
+        if (admin.products.values.length > 0) {
+          admin.products.values.unshift({ ...res.data, page: 1 });
 
-          const newProdCount = parseInt(admin.prodCount) + 1;
+          const newProdCount = parseInt(admin.products.itemsCount) + 1;
 
           dispatch({
-            type: "ADMIN_OBJECT",
-            payload: { ...admin, prodCount: newProdCount },
+            type: "ADMIN_OBJECT_XVIII",
+            payload: {
+              products: {
+                ...admin.products,
+                itemsCount: newProdCount
+              }
+            },
           });
-          localStorage.setItem(
-            "admin",
-            JSON.stringify({ ...admin, prodCount: newProdCount })
-          );
 
           updateChanges(
             process.env.REACT_APP_ESTORE_ID,
@@ -135,10 +135,9 @@ const ProductCreate = ({ history }) => {
             user.token
           ).then((res) => {
             dispatch({
-              type: "ESTORE_INFO",
+              type: "ESTORE_INFO_XIX",
               payload: res.data,
             });
-            localStorage.setItem("estore", JSON.stringify(res.data));
           });
         }
 
@@ -152,32 +151,6 @@ const ProductCreate = ({ history }) => {
       });
   };
 
-  const handleChange = (e) => {
-    setValues({ ...values, [e.target.name]: e.target.value });
-  };
-
-  const handleCategoryChange = (e) => {
-    e.preventDefault();
-    setValues({ ...values, subcats: [], category: e.target.value });
-
-    const subcatValues = subcats.filter(
-      (subcat) => subcat.parent === e.target.value
-    );
-    if (subcatValues.length < 1) {
-      getCategorySubcats(e.target.value).then((res) => {
-        setSubcatOptions(res.data);
-      });
-    } else {
-      setSubcatOptions(subcatValues);
-    }
-    setshowSubcat(true);
-  };
-
-  const handleParentChange = (e) => {
-    e.preventDefault();
-    setValues({ ...values, parent: e.target.value });
-  };
-
   return (
     <div className="container">
       <div className="row">
@@ -189,22 +162,39 @@ const ProductCreate = ({ history }) => {
           <h4 style={{ margin: "20px 0" }}>Product Create</h4>
           <hr />
 
-          <div className="p-3">
-            <FileCreateUpload values={values} setValues={setValues} />
-          </div>
-
-          <ProductCreateForm
-            setValues={setValues}
-            handleSubmit={handleSubmit}
-            handleChange={handleChange}
-            handleCategoryChange={handleCategoryChange}
-            handleParentChange={handleParentChange}
+          <ProductImage
             values={values}
-            loading={loading}
-            subcatOptions={subcatOptions}
-            showSubcat={showSubcat}
-            setSaveVariant={setSaveVariant}
+            setValues={setValues}
+            width={514}
+            height={514}
+            edit={false}
           />
+
+          <ProductInputsLoad
+            values={values}
+            setValues={setValues}
+            loading={loading}
+            handleSubmit={handleSubmit}
+            subcatOptions={subcatOptions}
+            setSubcatOptions={setSubcatOptions}
+            setSaveVariant={setSaveVariant}
+            edit={false}
+          />
+
+          <Button
+            onClick={handleSubmit}
+            type="primary"
+            className="mb-3"
+            block
+            shape="round"
+            size="large"
+            disabled={loading}
+            style={{ marginTop: "30px", width: "150px" }}
+          >
+            Submit
+          </Button>
+          <br />
+          <br />
         </div>
       </div>
     </div>

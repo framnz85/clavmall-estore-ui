@@ -1,10 +1,16 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { Radio } from "antd";
+import NumberFormat from "react-number-format";
 
 const ProductListItems = ({ product, setVariant }) => {
   const { price, category, subcats, parent, variants, quantity, sold } =
     product;
+  
+  const { estore } = useSelector((state) => ({
+      ...state,
+  }));
 
   return (
     <ul className="list-group">
@@ -14,7 +20,13 @@ const ProductListItems = ({ product, setVariant }) => {
           className="label label-default label-pill pull-xs-right"
           style={{ color: "#ff8c00", fontSize: "22px" }}
         >
-          &#8369; {parseFloat(price).toFixed(2)}
+          <NumberFormat
+            value={Number(price).toFixed(2)}
+            displayType={"text"}
+            thousandSeparator={true}
+            prefix={estore.country.currency}
+            style={{margin: 0}}
+          />
         </span>
       </li>
       {category && (

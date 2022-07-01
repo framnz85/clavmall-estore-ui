@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import _ from "lodash";
-import { getParents, getProductByParent } from "../../functions/parent";
+
 import ParentHomeList from "./../../components/parent/ParentHomeList";
 
-const ParentHome = ({ match }) => {
-  const dispatch = useDispatch();
+import { getParents, getProductByParent } from "../../functions/parent";
+import { getCategories } from "../../functions/category";
+import getUnique from "../../components/common/getUnique";
 
-  const { estore, products, parents } = useSelector((state) => ({ ...state }));
+const ParentHome = ({ match }) => {
+  let dispatch = useDispatch();
+
+  const { estore, products, parents, user } = useSelector(
+    (state) => ({
+      ...state,
+    })
+  );
 
   const [parent, setParent] = useState({});
   const [values, setValues] = useState([]);
@@ -26,14 +33,13 @@ const ParentHome = ({ match }) => {
 
   const loadParents = () => {
     if (typeof window !== undefined) {
-      if (!localStorage.getItem("parents")) {
+      if (!localStorage.getItem("parents") || parents.length < 100) {
         setLoading(true);
         getParents().then((parent) => {
           dispatch({
-            type: "PARENT_LIST",
+            type: "PARENT_LIST_X",
             payload: parent.data,
           });
-          localStorage.setItem("parents", JSON.stringify(parent.data));
           setLoading(false);
         });
       }
@@ -52,21 +58,48 @@ const ParentHome = ({ match }) => {
 
       if (productParent.length < 20) {
         setValues(productParent);
-        getProductByParent(thisParent[0]._id).then((product) => {
-          let unique = _.uniqWith([...products, ...product.data], _.isEqual);
+        getProductByParent(
+          thisParent[0]._id,
+          user.address ? user.address : {}
+        ).then((product) => {
+          const unique = getUnique(products, product.data);
           setValues(
-            unique.filter((product) => product.parent._id === thisParent[0]._id)
+            unique.all.filter((product) => product.parent._id === thisParent[0]._id)
           );
           dispatch({
-            type: "PRODUCT_LIST",
-            payload: unique,
+            type: "PRODUCT_LIST_XVI",
+            payload: product.data,
           });
-          localStorage.setItem("products", JSON.stringify(unique));
         });
       } else {
         setValues(
           products.filter((product) => product.parent._id === thisParent[0]._id)
         );
+      }
+    }
+
+    loadCategories();
+  };
+
+  const loadCategories = () => {
+    if (typeof window !== undefined) {
+      if (
+        !localStorage.getItem("categories") ||
+        !localStorage.getItem("products") ||
+        !JSON.parse(localStorage.getItem("products")).length
+      ) {
+        setLoading(true);
+        getCategories(user.address ? user.address : {}).then((category) => {
+          dispatch({
+            type: "CATEGORY_LIST_XIII",
+            payload: category.data.categories,
+          });
+          dispatch({
+              type: "PRODUCT_LIST_XVI",
+              payload: category.data.products,
+          });
+          setLoading(false);
+        });
       }
     }
   };

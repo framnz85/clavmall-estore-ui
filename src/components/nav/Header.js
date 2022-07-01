@@ -9,22 +9,29 @@ import {
   LogoutOutlined,
   ShoppingOutlined,
   ShoppingCartOutlined,
+  EnvironmentOutlined,
 } from "@ant-design/icons";
-import firebase from "firebase";
+import { signOut } from "firebase/auth";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
-import SearcHead from "../forms/SearcHead";
+import { toast } from "react-toastify";
+
+import SearchHead from "./SearchHead";
+
+import { auth } from "../../functions/firebase";
 import { getEstoreInfo } from "../../functions/estore";
+import LocationModal from "../modal/LocationModal";
 
 const { SubMenu, Item } = Menu;
 
 const Header = () => {
   let dispatch = useDispatch();
-  const [current, setCurrent] = useState("home");
-
-  let { estore, user, cart } = useSelector((state) => ({ ...state }));
-
   let history = useHistory();
+
+  const [current, setCurrent] = useState("home");
+  const [locModalVisible, setLocModalVisible] = useState(false);
+
+  let { estore, user, inputs } = useSelector((state) => ({ ...state }));
 
   const rightStyle = {
     position: "absolute",
@@ -52,21 +59,25 @@ const Header = () => {
   };
 
   const logout = () => {
-    firebase.auth().signOut();
-    dispatch({
-      type: "USER_LOGOUT",
-      payload: {},
-    });
-    localStorage.clear();
-    getEstoreInfo(process.env.REACT_APP_ESTORE_ID).then((estore) => {
+    signOut(auth).then(() => {
       dispatch({
-        type: "ESTORE_INFO",
-        payload: {
-          ...estore.data[0],
-        },
+        type: "USER_LOGOUT",
+        payload: {},
       });
-      localStorage.setItem("estore", JSON.stringify(estore.data[0]));
-      history.push("/login");
+      getEstoreInfo(process.env.REACT_APP_ESTORE_ID).then((estore) => {
+        dispatch({
+          type: "ESTORE_LOGOUT",
+          payload: estore.data[0],
+        });
+        localStorage.setItem(
+            "estore",
+            JSON.stringify(estore.data[0])
+        );
+        toast.success("Successfully logged out!");
+        history.push("/login");
+      });
+    }).catch((error) => {
+        toast.success(error.message);
     });
   };
 
@@ -88,9 +99,17 @@ const Header = () => {
             Shop
           </Link>
         </Item>
+        <Item
+          key="location"
+          icon={<EnvironmentOutlined />}
+          style={headerStyle}
+          onClick={() => setLocModalVisible(true)}
+        >
+          <span style={headerStyle}>Location</span>
+        </Item>
         <Item key="cart" icon={<ShoppingCartOutlined />} style={headerStyle}>
           <Link to="/cart" style={headerStyle}>
-            <Badge count={cart.length} offset={[11, 0]}>
+            <Badge count={inputs.cart && inputs.cart.map(p => parseInt(p.count)).reduce((a, b) => a + b, 0)} offset={[11, 0]}>
               <span style={headerStyle}>Cart</span>
             </Badge>
           </Link>
@@ -98,8 +117,13 @@ const Header = () => {
       </Menu>
 
       <Menu className="m-2" style={searchStyle}>
-        <SearcHead />
+        <SearchHead />
       </Menu>
+
+      <LocationModal
+        locModalVisible={locModalVisible}
+        setLocModalVisible={setLocModalVisible}
+      />
 
       {user.token && (
         <Menu
@@ -121,7 +145,7 @@ const Header = () => {
             )}
             {user && user.role === "subscriber" && (
               <Item key="subscriber">
-                <Link to="/user/history">Dashboard</Link>
+                <Link to="/user/orders">Dashboard</Link>
               </Item>
             )}
             <Item key="logout" icon={<LogoutOutlined />} onClick={logout}>

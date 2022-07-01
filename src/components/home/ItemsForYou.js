@@ -3,15 +3,33 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { Button } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
-import _ from "lodash";
-import { getRandomProducts } from "../../functions/product";
+
 import ProductCard from "../../components/cards/ProductCard";
 import LoadingCard from "../../components/cards/LoadingCard";
 
-const ItemsForYou = () => {
-  const dispatch = useDispatch();
+import { getRandomProducts } from "../../functions/product";
+import getUnique from "../common/getUnique";
 
-  const { estore, products } = useSelector((state) => ({ ...state }));
+const shuffleArray = (array) => {
+  let currentIndex = array.length,
+    randomIndex;
+
+  while (currentIndex !== 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex],
+      array[currentIndex],
+    ];
+  }
+  return array;
+};
+
+const ItemsForYou = () => {
+  let dispatch = useDispatch();
+
+  const { estore, products, user } = useSelector((state) => ({ ...state }));
 
   const [page, setPage] = useState(0);
   const [ifyProducts, setIfyProducts] = useState([]);
@@ -20,40 +38,36 @@ const ItemsForYou = () => {
 
   useEffect(() => {
     loadRandomProducts(1);
-    shuffleArray([...products]);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const shuffleArray = (array) => {
-    let currentIndex = array.length,
-      randomIndex;
-
-    while (currentIndex !== 0) {
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-
-      [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex],
-        array[currentIndex],
-      ];
+    if (!sessionStorage.getItem("productShuffle")) {
+      const suffledProducts = shuffleArray([...products]);
+      setIfyProducts(suffledProducts);
+      if (products) {
+          dispatch({
+              type: "PRODUCT_LIST_VIII",
+              payload: suffledProducts,
+          });
+      }
+    } else {
+      setIfyProducts([...products]);
     }
-
-    setIfyProducts(array);
-  };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadRandomProducts = (nextPage) => {
     setPage(nextPage);
     const maxRandNum = nextPage === 1 ? 60 : 60 + nextPage * 20;
     if (products.length < maxRandNum) {
       nextPage === 1 ? setLoading(true) : setLoadMore(true);
-      getRandomProducts(nextPage === 1 ? 60 : 20)
+      getRandomProducts(
+        nextPage === 1 ? 60 : 20,
+        user.address ? user.address : {}
+      )
         .then((res) => {
-          let unique = _.uniqWith([...products, ...res.data], _.isEqual);
-          setIfyProducts(unique);
+          const unique = getUnique(products, res.data);
+          setIfyProducts(unique.all);
           dispatch({
-            type: "PRODUCT_LIST",
-            payload: unique,
+            type: "PRODUCT_LIST_VIII",
+            payload: res.data,
           });
-          localStorage.setItem("products", JSON.stringify(unique));
           setLoading(false);
           setLoadMore(false);
         })

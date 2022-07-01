@@ -2,23 +2,35 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Joi from "joi-browser";
 import { toast } from "react-toastify";
-import _ from "lodash";
+import { Button } from "antd";
+
+import AdminNav from "../../../components/nav/AdminNav";
+import SubcatInputs from "../../../components/forms/subcat/SubcatInputs";
+
 import { getCategories } from "../../../functions/category";
 import { updateSubcat } from "../../../functions/subcat";
-import AdminNav from "../../../components/nav/AdminNav";
-import CategoryForm from "../../../components/forms/CategoryForms";
 import { updateChanges } from "../../../functions/estore";
 
-const SubcatUpdate = ({ history, match }) => {
-  const dispatch = useDispatch();
+const initialState = {
+  name: "",
+  category: "",
+  itemsCount: 0,
+  pageSize: 20,
+  currentPage: 1,
+  sortkey: "",
+  sort: -1,
+  searchQuery: "",
+};
 
-  const { user, products, categories, subcats } = useSelector((state) => ({
+const SubcatUpdate = ({ history, match }) => {
+  let dispatch = useDispatch();
+
+  const [values, setValues] = useState(initialState);
+  const [loading, setLoading] = useState(false);
+
+  const { user, categories, subcats } = useSelector((state) => ({
     ...state,
   }));
-
-  const [name, setName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [parent, setParent] = useState("");
 
   useEffect(() => {
     loadCategories();
@@ -31,23 +43,13 @@ const SubcatUpdate = ({ history, match }) => {
         setLoading(true);
         getCategories().then((category) => {
           dispatch({
-            type: "CATEGORY_LIST",
+            type: "CATEGORY_LIST_XI",
             payload: category.data.categories,
           });
-          localStorage.setItem(
-            "categories",
-            JSON.stringify(category.data.categories)
-          );
-
-          let unique = _.uniqWith(
-            [...products, ...category.data.products],
-            _.isEqual
-          );
           dispatch({
-            type: "PRODUCT_LIST",
-            payload: unique,
+              type: "PRODUCT_LIST_XIV",
+              payload: category.data.products,
           });
-          localStorage.setItem("products", JSON.stringify(unique));
           setLoading(false);
         });
       }
@@ -59,10 +61,13 @@ const SubcatUpdate = ({ history, match }) => {
       (subcat) => subcat.slug === match.params.slug
     );
     if (subcatName[0]) {
-      setName(subcatName[0].name);
-      setParent(subcatName[0].parent);
+      setValues({
+        ...values,
+        name: subcatName[0].name,
+        category: subcatName[0].parent,
+      })
     } else {
-      history.push("/admin/category");
+      history.push("/admin/subcat");
     }
   };
 
@@ -73,12 +78,12 @@ const SubcatUpdate = ({ history, match }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!parent) {
+    if (!values.category) {
       toast.error("Please select a category");
       return;
     }
 
-    const validate = Joi.validate({ name }, schema, {
+    const validate = Joi.validate({ name: values.name }, schema, {
       abortEarly: false,
     });
 
@@ -89,11 +94,13 @@ const SubcatUpdate = ({ history, match }) => {
 
     setLoading(true);
 
-    updateSubcat(match.params.slug, { name, parent }, user.token)
+    updateSubcat(match.params.slug, { name: values.name, parent: values.category }, user.token)
       .then((res) => {
-        setLoading(false);
-        setName("");
-        toast.success(`"${res.data.name}" is updated.`);
+        setValues({
+          ...values,
+          name: "",
+          category: "",
+        })
 
         subcats.forEach((subcat) => {
           if (subcat.slug === match.params.slug) {
@@ -103,22 +110,22 @@ const SubcatUpdate = ({ history, match }) => {
         });
 
         dispatch({
-          type: "SUBCAT_LIST",
-          payload: [...subcats],
+          type: "SUBCAT_LIST_X",
+          payload: subcats,
         });
-        localStorage.setItem("subcats", JSON.stringify(subcats));
         updateChanges(
           process.env.REACT_APP_ESTORE_ID,
           "subcatChange",
           user.token
         ).then((res) => {
           dispatch({
-            type: "ESTORE_INFO",
+            type: "ESTORE_INFO_XXII",
             payload: res.data,
           });
-          localStorage.setItem("estore", JSON.stringify(res.data));
         });
         history.push("/admin/subcat");
+        setLoading(false);
+        toast.success(`"${res.data.name}" is updated.`);
       })
       .catch((error) => {
         if (error.response.status === 400 || 404)
@@ -136,31 +143,29 @@ const SubcatUpdate = ({ history, match }) => {
         </div>
         <div className="col-md-10 bg-white mt-3 mb-5">
           <h4 style={{ margin: "20px 0" }}>Update Sub-Category</h4>
+          <hr />
 
-          <div className="form-group">
-            <select
-              name="category"
-              className="form-control"
-              onChange={(e) => setParent(e.target.value)}
-              value={parent}
-            >
-              <option value="">Select a category</option>
-              {categories.length > 0 &&
-                categories.map((category) => (
-                  <option key={category._id} value={category._id}>
-                    {category.name}
-                  </option>
-                ))}
-            </select>
-          </div>
-
-          <CategoryForm
-            handleSubmit={handleSubmit}
-            name={name}
-            setName={setName}
+          <SubcatInputs
+            values={values}
+            setValues={setValues}
             loading={loading}
-            placeholder="Enter a sub-category"
+            setLoading={setLoading}
+            categories={categories}
+            edit={false}
           />
+
+          <Button
+            onClick={handleSubmit}
+            type="primary"
+            className="mb-3"
+            block
+            shape="round"
+            size="large"
+            disabled={values.name.length < 2 || loading}
+            style={{ marginTop: "30px", width: "150px" }}
+          >
+            Save
+          </Button>
         </div>
       </div>
     </div>

@@ -49,12 +49,12 @@ const AdminNav = () => {
         </li>
         <li className="nav-item">
           <Link to="/admin/payment" className="nav-link" style={textColor}>
-            Payment
+            Payments
           </Link>
         </li>
         <li className="nav-item">
           <Link to="/admin/coupon" className="nav-link" style={textColor}>
-            Coupon
+            Coupons
           </Link>
         </li>
         <li className="nav-item">
@@ -63,7 +63,7 @@ const AdminNav = () => {
           </Link>
         </li>
         <li className="nav-item">
-          <Link to="/user/history" className="nav-link" style={textColor}>
+          <Link to="/user/orders" className="nav-link" style={textColor}>
             Personal
           </Link>
         </li>

@@ -2,16 +2,16 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { Card, Skeleton } from "antd";
-import _ from "lodash";
+
 import noImage from "../../images/noimage.jpg";
 import { getCategories } from "../../functions/category";
 
 const CategoryProducts = ({ others }) => {
-  const dispatch = useDispatch();
+  let dispatch = useDispatch();
 
   const [loading, setLoading] = useState(false);
 
-  const { categories, products } = useSelector((state) => ({
+  const { categories, products, user } = useSelector((state) => ({
     ...state,
   }));
 
@@ -21,27 +21,21 @@ const CategoryProducts = ({ others }) => {
 
   const loadCategories = () => {
     if (typeof window !== undefined) {
-      if (!localStorage.getItem("categories")) {
+      if (
+        !localStorage.getItem("categories") ||
+        !localStorage.getItem("products") ||
+        !JSON.parse(localStorage.getItem("products")).length
+      ) {
         setLoading(true);
-        getCategories().then((category) => {
+        getCategories(user.address ? user.address : {}).then((category) => {
           dispatch({
-            type: "CATEGORY_LIST",
+            type: "CATEGORY_LIST_I",
             payload: category.data.categories,
           });
-          localStorage.setItem(
-            "categories",
-            JSON.stringify(category.data.categories)
-          );
-
-          let unique = _.uniqWith(
-            [...products, ...category.data.products],
-            _.isEqual
-          );
           dispatch({
-            type: "PRODUCT_LIST",
-            payload: unique,
+            type: "PRODUCT_LIST_VII",
+            payload: category.data.products,
           });
-          localStorage.setItem("products", JSON.stringify(unique));
           setLoading(false);
         });
       }
@@ -95,7 +89,7 @@ const CategoryProducts = ({ others }) => {
     const result =
       forRandomProducts[Math.floor(Math.random() * forRandomProducts.length)];
 
-    return result && result.images[0].url;
+    return result && result.images[0] ? result.images[0].url : noImage;
   };
 
   return (

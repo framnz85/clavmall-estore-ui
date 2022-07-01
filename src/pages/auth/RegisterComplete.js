@@ -4,15 +4,17 @@ import Joi from "joi-browser";
 import { toast } from "react-toastify";
 import { Button } from "antd";
 import { ArrowRightOutlined } from "@ant-design/icons";
+import { isSignInWithEmailLink, signInWithEmailLink, updatePassword } from "firebase/auth";
+
 import { createOrUpdateUser } from "../../functions/auth";
-import { auth } from "../firebase";
+import { auth } from "../../functions/firebase";
 
 const RegisterComplete = ({ history }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repassword, setRepassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const dispatch = useDispatch();
+  let dispatch = useDispatch();
 
   let { user } = useSelector((state) => ({ ...state }));
 
@@ -38,68 +40,73 @@ const RegisterComplete = ({ history }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const validate1 = Joi.validate({ email, password }, schema1, {
-      abortEarly: false,
-    });
+    if (isSignInWithEmailLink(auth, window.location.href)) {
+      let email = window.localStorage.getItem('emailForRegistration');
+      if (!email) {
+        toast.error("Link to complete registration should be open on the same computer and browser where you have entered it for registration");
+      } else {
+        const validate1 = Joi.validate({ email, password }, schema1, {
+          abortEarly: false,
+        });
 
-    if (validate1.error) {
-      for (let item of validate1.error.details) toast.error(item.message);
-      return;
-    }
+        if (validate1.error) {
+          for (let item of validate1.error.details) toast.error(item.message);
+          return;
+        }
 
-    const validate2 = Joi.validate({ password }, schema2, {
-      abortEarly: false,
-    });
+        const validate2 = Joi.validate({ password }, schema2, {
+          abortEarly: false,
+        });
 
-    if (validate2.error) {
-      toast.error(
-        "Password must have at least one letter, one number and one special character."
-      );
-      return;
-    }
+        if (validate2.error) {
+          toast.error(
+            "Password must have at least one letter, one number and one special character."
+          );
+          return;
+        }
 
-    if (password !== repassword) {
-      toast.error("Password does not match!");
-      return;
-    }
+        if (password !== repassword) {
+          toast.error("Password does not match!");
+          return;
+        }
 
-    setLoading(true);
+        setLoading(true);
 
-    try {
-      const result = await auth.signInWithEmailLink(
-        email,
-        window.location.href
-      );
-      if (result.user.emailVerified) {
-        window.localStorage.removeItem("emailForRegistration");
-
-        let user = auth.currentUser;
-        await user.updatePassword(password);
-        const idTokenResult = await user.getIdTokenResult();
-
-        createOrUpdateUser(idTokenResult.token)
-          .then((res) => {
-            dispatch({
-              type: "LOGGED_IN_USER",
-              payload: {
-                name: res.data.name,
-                email: res.data.email,
-                token: idTokenResult.token,
-                role: res.data.role,
-                _id: res.data._id,
-              },
+        signInWithEmailLink(auth, email, window.location.href).then((result) => {
+          if (result.user.emailVerified) {
+            let user = auth.currentUser;
+            updatePassword(user, password).then(() => {
+                createOrUpdateUser(user.accessToken)
+                  .then((res) => {
+                    dispatch({
+                      type: "LOGGED_IN_USER_III",
+                      payload: {
+                        name: res.data.name,
+                        email: res.data.email,
+                        token: user.accessToken,
+                        role: res.data.role,
+                        _id: res.data._id,
+                      },
+                    });
+                  })
+                  .catch((error) => {
+                    toast.error(error.message);
+                  });
+                window.localStorage.removeItem("emailForRegistration");
+                setLoading(false);
+                history.push("/");
+            }).catch((error) => {
+              toast.error(error.message);
+              setLoading(false);
             });
-          })
-          .catch((error) => {
-            toast.error(error.message);
-            setLoading(false);
-          });
-
-        history.push("/");
+          }
+        }).catch((error) => {
+          toast.error(error.message);
+          setLoading(false);
+        });
       }
-    } catch (error) {
-      toast.error(error.message);
-      setLoading(false);
+    } else {
+      toast.error("Link to complete registration should be open on the same computer and browser where you have entered it for registration");
     }
   };
 

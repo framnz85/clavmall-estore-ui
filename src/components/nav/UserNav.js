@@ -13,18 +13,18 @@ const UserNav = () => {
     <nav>
       <ul className="nav flex-column" style={{ padding: "10px 20px 10px 5px" }}>
         <li className="nav-item">
-          <Link to="/user/history" className="nav-link" style={textColor}>
+          <Link to="/user/orders" className="nav-link" style={textColor}>
             History
-          </Link>
-        </li>
-        <li className="nav-item">
-          <Link to="/user/password" className="nav-link" style={textColor}>
-            Password
           </Link>
         </li>
         <li className="nav-item">
           <Link to="/user/wishlist" className="nav-link" style={textColor}>
             Wishlist
+          </Link>
+        </li>
+        <li className="nav-item">
+          <Link to="/user/account" className="nav-link" style={textColor}>
+            Account
           </Link>
         </li>
         <li className="nav-item">

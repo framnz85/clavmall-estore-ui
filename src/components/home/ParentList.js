@@ -5,7 +5,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { getParents } from "../../functions/parent";
 
 const ParentList = () => {
-  const dispatch = useDispatch();
+  let dispatch = useDispatch();
 
   const { parents } = useSelector((state) => ({ ...state }));
 
@@ -20,12 +20,11 @@ const ParentList = () => {
     if (typeof window !== undefined) {
       if (!localStorage.getItem("parents")) {
         setLoading(true);
-        getParents().then((parent) => {
+        getParents(50).then((parent) => {
           dispatch({
-            type: "PARENT_LIST",
+            type: "PARENT_LIST_VI",
             payload: parent.data,
           });
-          localStorage.setItem("parents", JSON.stringify(parent.data));
           setValues(parent.data);
           setLoading(false);
         });

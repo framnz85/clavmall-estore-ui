@@ -2,33 +2,44 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Joi from "joi-browser";
 import { toast } from "react-toastify";
-import { updateCategory } from "../../../functions/category";
+import { Button } from "antd";
 import AdminNav from "../../../components/nav/AdminNav";
-import CategoryForm from "../../../components/forms/CategoryForms";
+import CategoryInputs from "../../../components/forms/category/CategoryInputs";
+import { updateCategory } from "../../../functions/category";
 import { updateChanges } from "../../../functions/estore";
 
-const CategoryUpdate = ({ history, match }) => {
-  const dispatch = useDispatch();
+const initialState = {
+  name: "",
+  itemsCount: 0,
+  pageSize: 20,
+  currentPage: 1,
+  sortkey: "",
+  sort: -1,
+  searchQuery: "",
+};
 
-  const [name, setName] = useState("");
+const CategoryUpdate = ({ history, match }) => {
+  let dispatch = useDispatch();
+
+  const [values, setValues] = useState(initialState);
   const [loading, setLoading] = useState(false);
 
   const { user, categories } = useSelector((state) => ({ ...state }));
 
   useEffect(() => {
-    const loadCategory = () => {
-      const categoryName = categories.filter(
-        (category) => category.slug === match.params.slug
-      );
-      if (categoryName[0]) {
-        setName(categoryName[0].name);
-      } else {
-        history.push("/admin/category");
-      }
-    };
-
     loadCategory();
-  }, [history, match, categories]);
+  }, [history, match, categories]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const loadCategory = () => {
+    const categoryName = categories.filter(
+      (category) => category.slug === match.params.slug
+    );
+    if (categoryName[0]) {
+      setValues({ ...values, name: categoryName[0].name });
+    } else {
+      history.push("/admin/category");
+    }
+  };
 
   const schema = {
     name: Joi.string().min(2).max(32).required(),
@@ -37,7 +48,7 @@ const CategoryUpdate = ({ history, match }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const validate = Joi.validate({ name }, schema, {
+    const validate = Joi.validate({ name: values.name }, schema, {
       abortEarly: false,
     });
 
@@ -48,7 +59,7 @@ const CategoryUpdate = ({ history, match }) => {
 
     setLoading(true);
 
-    updateCategory(match.params.slug, { name }, user.token)
+    updateCategory(match.params.slug, { name: values.name }, user.token)
       .then((res) => {
         setLoading(false);
         toast.success(`"${res.data.name}" is updated.`);
@@ -61,20 +72,18 @@ const CategoryUpdate = ({ history, match }) => {
         });
 
         dispatch({
-          type: "CATEGORY_LIST",
-          payload: [...categories],
+          type: "CATEGORY_LIST_X",
+          payload: categories,
         });
-        localStorage.setItem("categories", JSON.stringify(categories));
         updateChanges(
           process.env.REACT_APP_ESTORE_ID,
           "categoryChange",
           user.token
         ).then((res) => {
           dispatch({
-            type: "ESTORE_INFO",
+            type: "ESTORE_INFO_XV",
             payload: res.data,
           });
-          localStorage.setItem("estore", JSON.stringify(res.data));
         });
         history.push("/admin/category");
       })
@@ -94,13 +103,28 @@ const CategoryUpdate = ({ history, match }) => {
         </div>
         <div className="col-md-10 bg-white mt-3 mb-5">
           <h4 style={{ margin: "20px 0" }}>Update Category</h4>
-          <CategoryForm
-            handleSubmit={handleSubmit}
-            name={name}
-            setName={setName}
+          <hr />
+
+          <CategoryInputs
+            values={values}
+            setValues={setValues}
             loading={loading}
-            placeholder="Enter a category"
+            setLoading={setLoading}
+            edit={false}
           />
+
+          <Button
+            onClick={handleSubmit}
+            type="primary"
+            className="mb-3"
+            block
+            shape="round"
+            size="large"
+            disabled={values.name.length < 2 || loading}
+            style={{ marginTop: "30px", width: "150px" }}
+          >
+            Save
+          </Button>
         </div>
       </div>
     </div>

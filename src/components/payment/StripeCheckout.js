@@ -4,21 +4,25 @@ import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { Link } from "react-router-dom";
 import { Card } from "antd";
 import { DollarOutlined, CheckOutlined } from "@ant-design/icons";
+import { toast } from "react-toastify";
+import NumberFormat from "react-number-format";
+
 import { createPaymentIntent } from "../../functions/stripe";
 import { createOrder, emptyUserCart } from "../../functions/user";
 
-const StripeCheckout = () => {
-  const dispatch = useDispatch();
-  const { user, payopt } = useSelector((state) => ({
+const StripeCheckout = ({succeeded, setSucceeded}) => {
+  let dispatch = useDispatch();
+  const { user, inputs, estore } = useSelector((state) => ({
     ...state,
   }));
+  const { payopt } = inputs;
 
-  const [succeeded, setSucceeded] = useState(false);
   const [error, setError] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [disabled, setDisabled] = useState(true);
   const [clientSecret, setClientSecret] = useState("");
 
+  const [orderCode, setOrderCode] = useState("");
   const [cartTotal, setCartTotal] = useState(0);
   const [grandTotal, setGrandTotal] = useState(0);
 
@@ -45,8 +49,10 @@ const StripeCheckout = () => {
 
   useEffect(() => {
     createPaymentIntent(user.token).then((res) => {
+      if (res.data.err) return toast.error(res.data.err)
+      
       setClientSecret(res.data.clientSecret);
-
+      setOrderCode(res.data.orderCode)
       setCartTotal(res.data.cartTotal);
       setGrandTotal(res.data.grandTotal);
     });
@@ -69,21 +75,21 @@ const StripeCheckout = () => {
       setError(`Payment falied ${payload.error.message}`);
       setProcessing(false);
     } else {
-      createOrder({ paymentOption: payopt }, user.token).then((res) => {
+      createOrder({ paymentOption: payopt, orderCode, sellerTxnID: payload.paymentIntent.payment_method }, user.token).then((res) => {
         if (res.data.ok) {
+          dispatch({
+            type: "INPUTS_OBJECT_VIII",
+            payload: {cart: []},
+          });
           if (typeof window !== undefined) {
             localStorage.removeItem("cart");
           }
-          dispatch({
-            type: "ADD_TO_CART",
-            payload: [],
-          });
           emptyUserCart(user.token).then();
         }
+        setError(null);
+        setProcessing(false);
+        setSucceeded(true);
       });
-      setError(null);
-      setProcessing(false);
-      setSucceeded(true);
     }
   };
 
@@ -95,45 +101,65 @@ const StripeCheckout = () => {
   return (
     <>
       <div className="text-center pb-5">
-        <Card
+          <Card
           cover={
-            <>
-              <h3 className="alert alert-warning">{`Grand Total: ₱${grandTotal.toFixed(
-                2
-              )}`}</h3>
+              <>
+                  <h3 className="alert alert-warning">Grand Total:{" "}
+                      <NumberFormat
+                          value={Number(grandTotal).toFixed(2)}
+                          displayType={"text"}
+                          thousandSeparator={true}
+                          prefix={estore.country.currency}
+                          style={{margin: 0}}
+                      />
+                  </h3>
               {succeeded && (
-                <p className="alert alert-success">Successfully Paid!</p>
+                  <p className="alert alert-success">Successfully Paid!</p>
               )}
-            </>
+              </>
           }
           actions={[
-            <>
-              <DollarOutlined className="text-info" /> <br /> Cart Total: ₱
-              {cartTotal.toFixed(2)}
-            </>,
-            <>
-              <CheckOutlined className="text-info" /> <br /> Total Saved : ₱
-              {(cartTotal > grandTotal ? cartTotal - grandTotal : 0).toFixed(2)}
-            </>,
+              <>
+              <DollarOutlined className="text-info" /> <br /> Cart Total:{" "}
+                  <NumberFormat
+                      value={Number(cartTotal).toFixed(2)}
+                      displayType={"text"}
+                      thousandSeparator={true}
+                      prefix={estore.country.currency}
+                      style={{margin: 0}}
+                  />
+              </>,
+              <>
+              <CheckOutlined className="text-info" /> <br /> Total Saved :{" "}
+                  <NumberFormat
+                      value={Number(cartTotal > grandTotal ? cartTotal - grandTotal : 0).toFixed(2)}
+                      displayType={"text"}
+                      thousandSeparator={true}
+                      prefix={estore.country.currency}
+                      style={{margin: 0}}
+                  />
+              </>,
           ]}
-        />
+          />
       </div>
 
       <form id="payment-form" className="stripe-form" onSubmit={handleSubmit}>
-        <CardElement
-          id="card-element"
-          option={cartStyle}
-          onChange={handleChange}
-        />
-        <button
-          className="stripe-button"
-          disabled={processing || disabled || succeeded}
-        >
-          <span id="button-text">
-            {processing ? <div className="spinner" id="spinner"></div> : "Pay"}
-          </span>
-        </button>
-        <br />
+        {!succeeded && <>
+          <CardElement
+            id="card-element"
+            option={cartStyle}
+            onChange={handleChange}
+          />
+          <button
+            className="stripe-button"
+            disabled={processing || disabled || succeeded}
+          >
+            <span id="button-text">
+              {processing ? <div className="spinner" id="spinner"></div> : "Pay"}
+            </span>
+          </button>
+          <br />
+        </>}
         {error && (
           <div className="card-error text-danger" role="alert">
             {error}
@@ -142,7 +168,7 @@ const StripeCheckout = () => {
         <br />
         <p className={succeeded ? "result-message" : "result-message hidden"}>
           Order placed.{" "}
-          <Link to="/user/history">See order in your purchase history</Link>
+          <Link to="/user/orders">See order in your purchase history</Link>
         </p>
       </form>
     </>

@@ -20,3 +20,13 @@ export const createCoupon = async (coupon, authToken) =>
       },
     }
   );
+
+export const updateCoupon = async (couponId, activate, authToken) =>
+  await axios.put(process.env.REACT_APP_API + "/coupon-activate/" + couponId,
+    { activate },
+    {
+      headers: {
+        authToken,
+      },
+    }
+  );

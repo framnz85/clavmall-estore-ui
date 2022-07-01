@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import firebase from "firebase";
+import { signOut } from "firebase/auth";
 import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+
+import { auth } from "../../functions/firebase";
 import { getEstoreInfo } from "../../functions/estore";
 
 const LoadingToRedirect = () => {
@@ -11,21 +14,21 @@ const LoadingToRedirect = () => {
 
   useEffect(() => {
     const logout = () => {
-      firebase.auth().signOut();
-      dispatch({
-        type: "USER_LOGOUT",
-        payload: {},
-      });
-      localStorage.clear();
-      getEstoreInfo(process.env.REACT_APP_ESTORE_ID).then((estore) => {
+      signOut(auth).then(() => {
         dispatch({
-          type: "ESTORE_INFO",
-          payload: {
-            ...estore.data[0],
-          },
+          type: "USER_LOGOUT",
+          payload: {},
         });
-        localStorage.setItem("estore", JSON.stringify(estore.data[0]));
-        history.push("/login");
+        localStorage.clear();
+        getEstoreInfo(process.env.REACT_APP_ESTORE_ID).then((estore) => {
+          dispatch({
+            type: "ESTORE_INFO_XII",
+            payload: estore.data[0],
+          });
+          history.push("/login");
+        });
+      }).catch((error) => {
+          toast.success(error.message);
       });
     };
 

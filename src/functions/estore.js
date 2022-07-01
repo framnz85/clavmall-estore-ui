@@ -10,6 +10,9 @@ export const getEstore = async (estid, authToken) =>
     },
   });
 
+export const getEstoreChanges = async (estid) =>
+  await axios.get(process.env.REACT_APP_API + "/setting/changes/" + estid);
+
 export const updateEstore = async (estid, values, authToken) =>
   await axios.put(
     process.env.REACT_APP_API + "/setting/estoreupdate/" + estid,

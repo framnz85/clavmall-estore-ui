@@ -1,11 +1,15 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import ProductCard from "../../components/cards/ProductCard";
 import LoadingCard from "../../components/cards/LoadingCard";
 import CategoryProducts from "./../home/CategoryProducts";
 import SubcatList from "./../home/SubcatList";
 import ParentList from "./../home/ParentList";
+import Footer from "./../home/Footer";
 
 const SubcatHomeList = ({ subcat, products, loading, carouselColor }) => {
+  const { estore } = useSelector((state) => ({ ...state }));
+
   return (
     <>
       <h4
@@ -35,12 +39,17 @@ const SubcatHomeList = ({ subcat, products, loading, carouselColor }) => {
         )}
       </div>
 
-      <CategoryProducts others={true} />
+      {estore.showCategories && (
+        <>
+          <CategoryProducts others={true} />
+          <div className="bg-white mt-3 p-3">
+            <SubcatList />
+            <ParentList />
+          </div>
+        </>
+      )}
 
-      <div className="bg-white mt-3 p-3">
-        <SubcatList others={true} />
-        <ParentList />
-      </div>
+      <Footer />
     </>
   );
 };

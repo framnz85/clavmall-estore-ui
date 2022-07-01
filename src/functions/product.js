@@ -10,12 +10,25 @@ export const createProduct = async (product, authToken) =>
 export const getProduct = async (slug) =>
   await axios.get(process.env.REACT_APP_API + "/product/" + slug);
 
-export const getProducts = async (sort, order, page, itemPerPage) =>
+export const getProducts = async (
+  sortkey,
+  sort,
+  currentPage,
+  pageSize,
+  searchQuery,
+  category,
+  subcat,
+  parent
+) =>
   await axios.post(process.env.REACT_APP_API + "/products", {
+    sortkey,
     sort,
-    order,
-    page,
-    itemPerPage,
+    currentPage,
+    pageSize,
+    searchQuery,
+    category,
+    subcat,
+    parent
   });
 
 export const updateProduct = async (slug, product, authToken) =>
@@ -32,19 +45,11 @@ export const removeProduct = async (slug, authToken) =>
     },
   });
 
-export const getRandomProducts = async (count, catId) =>
-  catId
-    ? await axios.post(
-        process.env.REACT_APP_API +
-          "/products/random/" +
-          count +
-          "/?catId=" +
-          catId
-      )
-    : await axios.post(process.env.REACT_APP_API + "/products/random/" + count);
-
-export const getProductsCount = async () =>
-  await axios.get(process.env.REACT_APP_API + "/products/total");
+export const getRandomProducts = async (count, address) =>
+  await axios.post(
+      process.env.REACT_APP_API + "/products/random/" + count,
+      { address }
+    );
 
 export const productStar = async (productId, star, authToken) =>
   await axios.put(
@@ -63,5 +68,8 @@ export const getRelated = async (productId) =>
 export const getParent = async (productId) =>
   await axios.get(process.env.REACT_APP_API + "/product/parent/" + productId);
 
-export const fetchProductByFilter = async (arg, count) =>
-  await axios.post(process.env.REACT_APP_API + "/search/filters/" + count, arg);
+export const fetchProductByFilter = async (arg, count, address) =>
+  await axios.post(process.env.REACT_APP_API + "/search/filters/" + count, {
+    arg,
+    address,
+  });

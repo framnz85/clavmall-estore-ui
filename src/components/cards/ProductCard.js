@@ -1,6 +1,9 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { Card } from "antd";
+import NumberFormat from "react-number-format";
+
 import noImage from "../../images/noimage.jpg";
 import showAverage from "../../functions/rating";
 
@@ -9,6 +12,10 @@ const { Meta } = Card;
 const ProductCard = ({ product, priceShow }) => {
   const { title, slug, price, variants, images } = product;
   let variantDesc = "";
+
+  const { estore } = useSelector((state) => ({
+      ...state,
+  }));
 
   for (const value of variants) {
     variantDesc += value.name + " ";
@@ -37,7 +44,12 @@ const ProductCard = ({ product, priceShow }) => {
                 <div className="ml-4" style={{ color: "#ff8c00" }}>
                   {showAverage(product, "14px")}
                   <div style={{ float: "left", clear: "both" }}>
-                    &#8369; {price.toFixed(2)}
+                    <NumberFormat
+                      value={Number(price).toFixed(2)}
+                      displayType={"text"}
+                      thousandSeparator={true}
+                      prefix={estore.country.currency}
+                  />
                   </div>
                 </div>,
               ]

@@ -1,108 +1,135 @@
-import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import NumberFormat from "react-number-format";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { Link } from "react-router-dom";
-import { LoadingOutlined, UnorderedListOutlined } from "@ant-design/icons";
-import { getOrders, changeStatus } from "../../../functions/admin";
+
 import AdminNav from "../../../components/nav/AdminNav";
+import InputSearch from "../../../components/common/form/InputSearch";
+import DashGroupSearch from "../../../components/forms/dashboard/DashGroupSearch";
+import DashboardTable from "../../../components/forms/dashboard/DashboardTable";
+
+import { getOrders } from "../../../functions/admin";
+import paymentCategories from "../../../components/common/constants/paymentCategories";
+
+const initialState = {
+  orders: [],
+  itemsCount: 0,
+  pageSize: 20,
+  currentPage: 1,
+  sortkey: "createdAt",
+  sort: -1,
+  searchQuery: "",
+  minPrice: 0,
+  maxPrice: 0,
+  dateFrom: "",
+  dateTo: "",
+  status: "",
+  statusOption: [
+    "Not Processed",
+    "Waiting Payment",
+    "Processing",
+    "Delivering",
+    "Cancelled",
+    "Completed",
+  ],
+  payment: "",
+  paymentOption: paymentCategories,
+};
 
 const AdminDashboard = () => {
-  const dispatch = useDispatch();
+  let dispatch = useDispatch();
 
+  const [values, setValues] = useState(initialState);
   const [loading, setLoading] = useState(false);
+  const [keyword, setKeyword] = useState("");
 
-  const { user, history } = useSelector((state) => ({
-    ...state,
-  }));
+  const { user, admin } = useSelector((state) => ({ ...state }));
 
   useEffect(() => {
     loadOrders();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [values.currentPage, values.sortkey, values.sort]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadOrders = () => {
-    if (!history.orders) {
-      setLoading(true);
-      getOrders(user.token).then((res) => {
-        dispatch({
-          type: "DASHBOARD_LIST",
-          payload: { ...history, orders: res.data },
-        });
+    const {
+      sortkey,
+      sort,
+      currentPage,
+      pageSize,
+      minPrice,
+      maxPrice,
+      dateFrom,
+      dateTo,
+      status,
+      payment,
+    } = values;
+    getOrders(
+      sortkey,
+      sort,
+      currentPage,
+      pageSize,
+      keyword,
+      minPrice,
+      maxPrice,
+      dateFrom,
+      dateTo,
+      status,
+      payment,
+      user.token
+    ).then((res) => {
+      let result = [];
+      res.data.orders && res.data.orders.map((data) => {
+        const existOrder = admin.orders.values.filter(order => order._id === data._id);
+        if (!existOrder.length || res.data.query) {
+          result.push({
+            ...data, page: currentPage
+          })
+        }
+        return result;
+      });
+      result.map(
+        (order) => order.orderedBy.name
+          ? order
+          : {
+            ...order, orderedBy: {
+              ...order.orderedBy, name: ""
+            }
+          }
+      );
+      setValues({
+        ...values,
+        orders: res.data.query ? result : [...admin.orders.values, ...result],
+        itemsCount: res.data.query ? parseInt(res.data.count)
+          : admin.orders.itemsCount > 0
+            ? admin.orders.itemsCount
+            : parseInt(res.data.count),
+      });
+      !res.data.query && dispatch({
+        type: "ADMIN_OBJECT_XIII",
+        payload: {
+          orders: {
+            ...admin.orders,
+            values: [...admin.orders.values, ...result],
+            pages: !admin.orders.pages.includes(currentPage)
+              ? [...admin.orders.pages, currentPage]
+              : admin.orders.pages,
+            itemsCount: admin.orders.itemsCount > 0
+              ? admin.orders.itemsCount
+              : parseInt(res.data.count),
+          }
+        }
+      });
+      setLoading(false);
+    })
+      .catch((error) => {
+        toast.error(error.message);
         setLoading(false);
       });
-    }
+
   };
 
-  const handleStatusChange = (orderId, orderStatus) => {
-    changeStatus(orderId, orderStatus, user.token).then((res) => {
-      setLoading(true);
-      getOrders(user.token).then((res) => {
-        toast.success("Order status updated");
-        dispatch({
-          type: "DASHBOARD_LIST",
-          payload: { ...history, orders: res.data },
-        });
-        setLoading(false);
-      });
-    });
-  };
-
-  const showOrderInTable = () => {
-    return (
-      <table className="table table-bordered">
-        <thead className="thead-light">
-          <tr>
-            <th scope="col">Date Created</th>
-            <th scope="col">Order Code</th>
-            <th scope="col">Grand Total</th>
-            <th scope="col">Status</th>
-            <th scope="col">Payment</th>
-            <th scope="col">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {history.orders &&
-            history.orders.map((order, i) => {
-              return (
-                <tr key={i}>
-                  <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                  <td>{order._id}</td>
-                  <td>
-                    <NumberFormat
-                      value={order.grandTotal.toFixed(2)}
-                      displayType={"text"}
-                      thousandSeparator={true}
-                      prefix={"₱"}
-                    />
-                  </td>
-                  <td>
-                    <select
-                      onChange={(e) =>
-                        handleStatusChange(order._id, e.target.value)
-                      }
-                      className="form-control"
-                      defaultValue={order.orderStatus}
-                      name="status"
-                    >
-                      <option value="Not Processed">Not Processed</option>
-                      <option value="Processing">Processing</option>
-                      <option value="Delivering">Delivering</option>
-                      <option value="Cancelled">Cancelled</option>
-                      <option value="Completed">Completed</option>
-                    </select>
-                  </td>
-                  <td>{order.paymentOption}</td>
-                  <td>
-                    <Link to={`/admin/order/${order._id}`}>
-                      <UnorderedListOutlined /> View Details
-                    </Link>
-                  </td>
-                </tr>
-              );
-            })}
-        </tbody>
-      </table>
-    );
+  const groupSearchSubmit = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    loadOrders();
   };
 
   return (
@@ -114,13 +141,29 @@ const AdminDashboard = () => {
 
         <div className="col-md-10 bg-white mt-3 mb-5">
           <h4 style={{ margin: "20px 0" }}>Dashboard</h4>
-          {showOrderInTable()}
 
-          {loading && (
-            <h4 style={{ margin: "20px 0" }}>
-              <LoadingOutlined />
-            </h4>
-          )}
+          <form onSubmit={groupSearchSubmit}>
+            <InputSearch
+              keyword={keyword}
+              setKeyword={setKeyword}
+              placeholder="Search name or order code"
+              data={values}
+              setData={setValues}
+            />
+          </form>
+
+          <DashGroupSearch
+            values={values}
+            setValues={setValues}
+            groupSearchSubmit={groupSearchSubmit}
+          />
+          <br /><br />
+
+          <DashboardTable
+            values={values}
+            setValues={setValues}
+            loading={loading}
+          />
         </div>
       </div>
     </div>
