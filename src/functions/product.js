@@ -73,3 +73,16 @@ export const fetchProductByFilter = async (arg, count, address) =>
     arg,
     address,
   });
+
+export const imageupdate = async (slug, images, authtoken) =>
+  axios.put(
+      `${process.env.REACT_APP_API}/product/imageupdate/${slug}`,
+      {
+        images,
+      },
+      {
+        headers: {
+          authtoken,
+        },
+      }
+    );

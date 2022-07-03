@@ -2,13 +2,15 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Joi from "joi-browser";
 import { toast } from "react-toastify";
-import axios from "axios";
 import { Button } from "antd";
+
 import AdminNav from "../../../components/nav/AdminNav";
 import ProductImage from "../../../components/forms/product/ProductImage";
 import ProductInputsLoad from "../../../components/forms/product/ProductInputsLoad";
+
 import { createProduct } from "../../../functions/product";
 import { updateChanges } from "../../../functions/estore";
+import { uploadFileImage } from "../../../functions/admin";
 
 const initialState = {
   title: "",
@@ -27,7 +29,7 @@ const initialState = {
 const ProductCreate = ({ history }) => {
   let dispatch = useDispatch();
 
-  const { user, admin } = useSelector((state) => ({ ...state }));
+  const { user, admin, estore } = useSelector((state) => ({ ...state }));
 
   const [values, setValues] = useState(initialState);
   const [loading, setLoading] = useState(false);
@@ -46,20 +48,6 @@ const ProductCreate = ({ history }) => {
     quantity: Joi.number(),
     variants: Joi.array(),
     images: Joi.array(),
-  };
-
-  const uploadImage = (image) => {
-    return axios.post(
-      `${process.env.REACT_APP_API}/uploadimages`,
-      {
-        image: image.url,
-      },
-      {
-        headers: {
-          authtoken: user ? user.token : "",
-        },
-      }
-    );
   };
 
   const handleSubmit = async (e) => {
@@ -94,7 +82,7 @@ const ProductCreate = ({ history }) => {
     setLoading(true);
 
     for (let i = 0; i < images.length; i++) {
-      result = await uploadImage(images[i]);
+      result = await uploadFileImage(images[i].url, estore, user.token);
       allUploadedFiles.push(result.data);
       setValues({ ...values, images: allUploadedFiles });
     }

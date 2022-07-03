@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import axios from "axios";
 import { toast } from "react-toastify";
 
 import ImageCarouselProperty from "./ImageCarouselProperty";
 
 import { getCategories, getCategorySubcats } from "../../../functions/category";
 import { getParents } from "../../../functions/parent";
+import { updateCarousel } from "../../../functions/estore";
+import { removeFileImage } from "../../../functions/admin";
 
 const ImageCarouselLoad = ({ values, setValues, setLoading }) => {
     let dispatch = useDispatch();
@@ -97,50 +98,32 @@ const ImageCarouselLoad = ({ values, setValues, setLoading }) => {
 
     const handleImageRemove = (public_id) => {
         setLoading(true);
-        axios
-            .post(
-                `${process.env.REACT_APP_API}/removeimage`,
-                {
-                    public_id,
-                },
-                {
-                    headers: {
-                        authtoken: user ? user.token : "",
-                    },
-                }
-            )
-            .then((res) => {
-                setLoading(false);
-                const { carouselImages } = estore;
-                let filteredImages = carouselImages.filter((item) => {
-                    return item.public_id !== public_id;
-                });
-
-                setValues({
-                    ...values,
-                    carouselImages: filteredImages,
-                });
-
-                dispatch({
-                    type: "ESTORE_INFO_III",
-                    payload: { carouselImages: filteredImages },
-                });
-                axios.put(
-                    `${process.env.REACT_APP_API}/setting/imageupdate/${process.env.REACT_APP_ESTORE_ID}`,
-                    {
-                        carouselImages: filteredImages,
-                    },
-                    {
-                        headers: {
-                            authtoken: user ? user.token : "",
-                        },
-                    }
-                );
-            })
-            .catch((error) => {
-                toast.error(error.message);
-                setLoading(false);
+        removeFileImage(public_id, estore, user.token).then((res) => {console.log(res.data)
+            if (res.data.err) {
+                toast.error(res.data.err);
+            }
+            setLoading(false);
+            const { carouselImages } = estore;
+            let filteredImages = carouselImages.filter((item) => {
+                return item.public_id !== public_id;
             });
+
+            setValues({
+                ...values,
+                carouselImages: filteredImages,
+            });
+
+            dispatch({
+                type: "ESTORE_INFO_III",
+                payload: { carouselImages: filteredImages },
+            });
+
+            updateCarousel(filteredImages, estore, user.token);
+        })
+        .catch((error) => {
+            toast.error(error.message);
+            setLoading(false);
+        });
     };
 
     return (

@@ -1,12 +1,14 @@
 import React from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { Modal, Pagination } from "antd";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { ExclamationCircleOutlined, LoadingOutlined } from "@ant-design/icons";
+
 import AdminProdCard from "../../cards/AdminProdCard";
+
 import { removeProduct } from "../../../functions/product";
 import { updateChanges } from "../../../functions/estore";
+import { removeFileImage } from '../../../functions/admin';
 
 const { confirm } = Modal;
 
@@ -14,21 +16,7 @@ const ProdShowCards = ({ values, setValues, loading }) => {
     let dispatch = useDispatch();
     const { products, itemsCount, pageSize, currentPage } = values;
 
-    const { user, admin } = useSelector((state) => ({ ...state }));
-
-    const removeImage = (public_id) => {
-        return axios.post(
-            `${process.env.REACT_APP_API}/removeimage`,
-            {
-                public_id,
-            },
-            {
-                headers: {
-                    authtoken: user ? user.token : "",
-                },
-            }
-        );
-    };
+    const { user, admin, estore } = useSelector((state) => ({ ...state }));
 
     const handleRemove = (slug, title, images) => {
         confirm({
@@ -42,7 +30,7 @@ const ProdShowCards = ({ values, setValues, loading }) => {
                 removeProduct(slug, user.token)
                     .then(async (res) => {
                         for (let i = 0; i < images.length; i++) {
-                            await removeImage(images[i].public_id);
+                            await removeFileImage(images[i].public_id, estore, user.token);
                         }
 
                         toast.error(`${res.data.title} is deleted`);

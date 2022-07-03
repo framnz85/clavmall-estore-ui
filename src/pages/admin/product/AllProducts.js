@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { LoadingOutlined } from "@ant-design/icons";
+
 import AdminNav from "../../../components/nav/AdminNav";
 import ProdShowCards from "../../../components/forms/product/ProdShowCards";
 import ProdGroupSearch from "../../../components/forms/product/ProdGroupSearch";
 import InputSearch from "../../../components/common/form/InputSearch";
+
 import { getProducts } from "../../../functions/product";
 
 const initialState = {

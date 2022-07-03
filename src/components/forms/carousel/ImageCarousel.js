@@ -2,14 +2,17 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Resizer from "react-image-file-resizer";
 import reactImageSize from "react-image-size";
-import axios from "axios";
 import { toast } from "react-toastify";
+
 import ImageCarouselLoad from "./ImageCarouselLoad";
+
+import { uploadFileImage } from "../../../functions/admin";
+import { updateCarousel } from "../../../functions/estore";
 
 const ImageCarousel = ({ values, setValues, loading, setLoading }) => {
     let dispatch = useDispatch();
 
-    const { user } = useSelector((state) => ({ ...state }));
+    const { user, estore } = useSelector((state) => ({ ...state }));
 
     const { carouselImages } = values;
 
@@ -38,19 +41,11 @@ const ImageCarousel = ({ values, setValues, loading, setLoading }) => {
                             return;
                         }
 
-                        axios
-                            .post(
-                                `${process.env.REACT_APP_API}/uploadimages`,
-                                {
-                                    image: uri,
-                                },
-                                {
-                                    headers: {
-                                        authtoken: user ? user.token : "",
-                                    },
-                                }
-                            )
-                            .then((res) => {
+                        uploadFileImage(uri, estore, user.token).then((res) => {
+                            if (res.data.err) {
+                                toast.error(res.data.err);
+                                setLoading(false);
+                            } else {
                                 setLoading(false);
                                 allUploadedFiles.push({ ...res.data, carouselURL: "", activation: true });
 
@@ -67,22 +62,14 @@ const ImageCarousel = ({ values, setValues, loading, setLoading }) => {
                                         activation: true,
                                     },
                                 });
-                                axios.put(
-                                    `${process.env.REACT_APP_API}/setting/imageupdate/${process.env.REACT_APP_ESTORE_ID}`,
-                                    {
-                                        carouselImages: allUploadedFiles,
-                                    },
-                                    {
-                                        headers: {
-                                            authtoken: user ? user.token : "",
-                                        },
-                                    }
-                                );
-                            })
-                            .catch((error) => {
-                                toast.error(error.message);
-                                setLoading(false);
-                            });
+
+                                updateCarousel(allUploadedFiles, estore, user.token);
+                            }
+                        })
+                        .catch((error) => {
+                            toast.error(error.message);
+                            setLoading(false);
+                        });
                     },
                     "base64"
                 );

@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
+
 import ImageUpload from "../../common/fileupload/ImageUpload";
+
 import { updateChanges } from "../../../functions/estore";
+import { imageupdate } from "../../../functions/product";
 
 const ProductImage = ({ values, setValues, width, height, edit }) => {
   let dispatch = useDispatch();
@@ -13,13 +15,18 @@ const ProductImage = ({ values, setValues, width, height, edit }) => {
   const [loading, setLoading] = useState(false);
 
   const updateProductImage = (images) => {
-    const newAdminProducts = admin.products.map((product) =>
+    const newAdminProducts = admin.products.values.map((product) =>
       product.slug === slug ? { ...values, images } : product
     );
 
     dispatch({
       type: "ADMIN_OBJECT_X",
-      payload: { products: newAdminProducts },
+      payload: {
+        products: {
+          ...admin.products,
+          values: newAdminProducts
+        }
+      },
     });
 
     updateChanges(
@@ -33,27 +40,22 @@ const ProductImage = ({ values, setValues, width, height, edit }) => {
       });
     });
 
-    axios.put(
-      `${process.env.REACT_APP_API}/product/imageupdate/${slug}`,
-      {
-        images,
-      },
-      {
-        headers: {
-          authtoken: user ? user.token : "",
-        },
-      }
-    );
+    imageupdate(slug, images, user.token);
   };
 
   const removeProductImage = (images) => {
-    const newAdminProducts = admin.products.map((product) =>
+    const newAdminProducts = admin.products.values.map((product) =>
       product.slug === slug ? { ...values, images } : product
     );
 
     dispatch({
       type: "ADMIN_OBJECT_X",
-      payload: { products: newAdminProducts },
+      payload: {
+        products: {
+          ...admin.products,
+          values: newAdminProducts
+        }
+      },
     });
 
     updateChanges(
@@ -67,17 +69,7 @@ const ProductImage = ({ values, setValues, width, height, edit }) => {
       });
     });
 
-    axios.put(
-      `${process.env.REACT_APP_API}/product/imageupdate/${slug}`,
-      {
-        images,
-      },
-      {
-        headers: {
-          authtoken: user ? user.token : "",
-        },
-      }
-    );
+    imageupdate(slug, images, user.token);
   };
 
   return (

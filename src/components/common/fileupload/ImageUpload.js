@@ -1,10 +1,11 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import Resizer from "react-image-file-resizer";
-import axios from "axios";
 import { Avatar, Badge } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import { toast } from "react-toastify";
+
+import { uploadFileImage, removeFileImage } from "../../../functions/admin";
 
 const ImageUpload = ({
   values,
@@ -17,7 +18,7 @@ const ImageUpload = ({
   handleImageUpdate,
   handleImageRemove,
 }) => {
-  const { user } = useSelector((state) => ({ ...state }));
+  const { user, estore } = useSelector((state) => ({ ...state }));
 
   const fileUploadAndResize = (e) => {
     let files = e.target.files;
@@ -35,23 +36,16 @@ const ImageUpload = ({
           0,
           (uri) => {
             if (edit) {
-              axios
-                .post(
-                  `${process.env.REACT_APP_API}/uploadimages`,
-                  {
-                    image: uri,
-                  },
-                  {
-                    headers: {
-                      authtoken: user ? user.token : "",
-                    },
-                  }
-                )
-                .then(async (res) => {
+              uploadFileImage(uri, estore, user.token).then((res) => {
+                if (res.data.err) {
+                  toast.error(res.data.err);
+                  setLoading(false);
+                } else {
                   uploadedImages.push(res.data);
                   setValues({ ...values, images: uploadedImages });
-                  await handleImageUpdate(uploadedImages);
+                  handleImageUpdate(uploadedImages);
                   setLoading(false);
+                }
                 })
                 .catch((error) => {
                   toast.error(error.message);
@@ -75,27 +69,20 @@ const ImageUpload = ({
   const removeThisImage = (public_id) => {
     setLoading(true);
     if (edit) {
-      axios
-        .post(
-          `${process.env.REACT_APP_API}/removeimage`,
-          {
-            public_id,
-          },
-          {
-            headers: {
-              authtoken: user ? user.token : "",
-            },
-          }
-        )
-        .then(async (res) => {
-          const { images } = values;
-          let remainingImages = images.filter((item) => {
-            return item.public_id !== public_id;
-          });
+      removeFileImage(public_id, estore, user.token).then((res) => {
+          if (res.data.err) {
+            toast.error(res.data.err);
+            setLoading(false);
+          } else {
+            const { images } = values;
+            let remainingImages = images.filter((item) => {
+              return item.public_id !== public_id;
+            });
 
-          setValues({ ...values, images: remainingImages });
-          await handleImageRemove(remainingImages);
-          setLoading(false);
+            setValues({ ...values, images: remainingImages });
+            handleImageRemove(remainingImages);
+            setLoading(false);
+          }
         })
         .catch((error) => {
           toast.error(error.message);

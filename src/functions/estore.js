@@ -176,3 +176,17 @@ export const deleteAddiv1 = async (couCode, addiv1Id, authToken) => {
     }
   );
 };
+
+export const updateCarousel = async (images, estore, authToken) => {
+  axios.put(
+    `${process.env.REACT_APP_API}/setting/carousel/${estore._id}`,
+    {
+        carouselImages: images,
+    },
+    {
+        headers: {
+            authToken,
+        },
+    }
+  );
+};
