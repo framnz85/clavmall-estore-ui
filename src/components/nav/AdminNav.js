@@ -1,12 +1,43 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { Link, useHistory } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { signOut } from "firebase/auth";
+import { toast } from "react-toastify";
+
+import { auth } from "../../functions/firebase";
+import { getEstoreInfo } from "../../functions/estore";
 
 const AdminNav = () => {
+  let dispatch = useDispatch();
+  let history = useHistory();
+
   const { estore } = useSelector((state) => ({ ...state }));
 
   const textColor = {
     color: estore.headerColor ? estore.headerColor : "#009a57",
+  };
+
+  const logout = () => {
+    signOut(auth).then(() => {
+      dispatch({
+        type: "USER_LOGOUT",
+        payload: {},
+      });
+      getEstoreInfo(estore._id).then((estore) => {
+        dispatch({
+          type: "ESTORE_LOGOUT",
+          payload: estore.data[0],
+        });
+        localStorage.setItem(
+            "estore",
+            JSON.stringify(estore.data[0])
+        );
+        toast.success("Successfully logged out!");
+        history.push("/login");
+      });
+    }).catch((error) => {
+        toast.success(error.message);
+    });
   };
 
   return (
@@ -66,6 +97,11 @@ const AdminNav = () => {
           <Link to="/user/orders" className="nav-link" style={textColor}>
             Personal
           </Link>
+        </li>
+        <li className="nav-item" onClick={logout}>
+          <div className="nav-link" style={{...textColor, cursor: "pointer"}}>
+            Logout
+          </div>
         </li>
       </ul>
     </nav>

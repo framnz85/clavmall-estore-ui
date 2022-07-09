@@ -1,34 +1,21 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, Badge } from "antd";
+import { Badge } from "antd";
 import {
   HomeOutlined,
   LoginOutlined,
   UserOutlined,
   UserAddOutlined,
-  LogoutOutlined,
   ShoppingOutlined,
   ShoppingCartOutlined,
   EnvironmentOutlined,
 } from "@ant-design/icons";
-import { signOut } from "firebase/auth";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
-import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
 
 import SearchHead from "./SearchHead";
-
-import { auth } from "../../functions/firebase";
-import { getEstoreInfo } from "../../functions/estore";
 import LocationModal from "../modal/LocationModal";
 
-const { SubMenu, Item } = Menu;
-
 const Header = () => {
-  let dispatch = useDispatch();
-  let history = useHistory();
-
-  const [current, setCurrent] = useState("home");
   const [locModalVisible, setLocModalVisible] = useState(false);
 
   let { estore, user, inputs } = useSelector((state) => ({ ...state }));
@@ -36,7 +23,7 @@ const Header = () => {
   const menuStyle = {
     mainContainer: {
       backgroundColor: estore.headerColor,
-      height: "50px",
+      height: "56px",
     },
     leftStyle: {
       color: "#ffffff",
@@ -57,128 +44,74 @@ const Header = () => {
     }
   }
 
-  const handleClick = (e) => {
-    setCurrent(e.key);
-  };
-
-  const logout = () => {
-    signOut(auth).then(() => {
-      dispatch({
-        type: "USER_LOGOUT",
-        payload: {},
-      });
-      getEstoreInfo(estore._id).then((estore) => {
-        dispatch({
-          type: "ESTORE_LOGOUT",
-          payload: estore.data[0],
-        });
-        localStorage.setItem(
-            "estore",
-            JSON.stringify(estore.data[0])
-        );
-        toast.success("Successfully logged out!");
-        history.push("/login");
-      });
-    }).catch((error) => {
-        toast.success(error.message);
-    });
-  };
-
   return (
     <div
       className="d-flex justify-content-between"
       style={menuStyle.mainContainer}
     >
-      <Menu
-        onClick={handleClick}
-        selectedKeys={[current]}
-        mode="horizontal"
-        style={menuStyle.leftStyle}
-      >
-        <Item key="home" icon={<HomeOutlined />} style={menuStyle.headerStyle}>
+      <div className="d-flex flex-row">
+        <div className="p-3 mr-3">
           <Link to="/" style={menuStyle.headerStyle}>
-            Home
+            <HomeOutlined /> Home
           </Link>
-        </Item>
-        <Item key="shop" icon={<ShoppingOutlined />} style={menuStyle.headerStyle}>
+        </div>
+        <div className="p-3 mr-3">
           <Link to="/shop" style={menuStyle.headerStyle}>
-            Shop
+            <ShoppingOutlined /> Shop
           </Link>
-        </Item>
-        <Item
-          key="location"
-          icon={<EnvironmentOutlined />}
-          style={menuStyle.headerStyle}
+        </div>
+        <div
+          className="p-3 mr-3"
+          style={{ ...menuStyle.headerStyle, cursor: "pointer" }}
           onClick={() => setLocModalVisible(true)}
         >
-          <span style={menuStyle.headerStyle}>Location</span>
-        </Item>
-        <Item key="cart" icon={<ShoppingCartOutlined />} style={menuStyle.headerStyle}>
+          <EnvironmentOutlined /> Location
+        </div>
+        <div className="p-3 mr-3">
           <Link to="/cart" style={menuStyle.headerStyle}>
+            <ShoppingCartOutlined />{" "}
             <Badge count={inputs.cart && inputs.cart.map(p => parseInt(p.count)).reduce((a, b) => a + b, 0)} offset={[11, 0]}>
               <span style={menuStyle.headerStyle}>Cart</span>
             </Badge>
           </Link>
-        </Item>
-        <Item key="search">
-        </Item>
-      </Menu>
+        </div>
+      </div>
 
       <div className="d-flex justify-content-end">
 
-        <Menu className="m-2" style={menuStyle.searchStyle}>
+        <div className="mr-3" style={{padding: "13px"}}>
           <SearchHead />
-        </Menu>
+        </div>
 
         {user.token && (
-          <Menu
-            onClick={handleClick}
-            selectedKeys={[current]}
-            mode="horizontal"
-            style={menuStyle.rightStyle}
-             className="d-flex justify-content-between"
-          >
-            <SubMenu
-              key="SubMenu"
-              icon={<UserOutlined />}
-              title={user.name || (user.email && user.email.split("@")[0])}
-              style={menuStyle.headerStyle}
-            >
-              {user && user.role === "admin" && (
-                <Item key="admin">
-                  <Link to="/admin/dashboard">Dashboard</Link>
-                </Item>
-              )}
-              {user && user.role === "subscriber" && (
-                <Item key="subscriber">
-                  <Link to="/user/orders">Dashboard</Link>
-                </Item>
-              )}
-              <Item key="logout" icon={<LogoutOutlined />} onClick={logout}>
-                Logout
-              </Item>
-            </SubMenu>
-          </Menu>
+          <>
+            <div className="p-3 mr-3">
+              <Link to={
+                  user && user.role === "admin"
+                    ? "/admin/dashboard"
+                  : user && user.role === "subscriber"
+                    ? "/user/orders"
+                    : ""
+                } style={menuStyle.headerStyle}>
+                <UserOutlined /> {user.name || (user.email && user.email.split("@")[0])}
+              </Link>
+            </div>
+          </>
         )}
 
         {!user.token && (
-          <Menu
-            onClick={handleClick}
-            selectedKeys={[current]}
-            mode="horizontal"
-            style={menuStyle.rightStyle}
-          >
-            <Item key="login" icon={<LoginOutlined />} style={menuStyle.headerStyle}>
+          <>
+            <div className="p-3 mr-3">
               <Link to="/login" style={menuStyle.headerStyle}>
-                Login
+                <LoginOutlined /> Login
               </Link>
-            </Item>
-            <Item key="register" icon={<UserAddOutlined />} style={menuStyle.headerStyle}>
+            </div>
+            <div className="p-3 mr-3">
               <Link to="/register" style={menuStyle.headerStyle}>
-                Register
+                <UserAddOutlined /> Register
               </Link>
-            </Item>
-          </Menu>
+            </div>
+          </>
         )}
         
       </div>
