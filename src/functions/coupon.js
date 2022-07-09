@@ -1,12 +1,18 @@
 import axios from "axios";
 
 export const getCoupon = async () =>
-  await axios.get(process.env.REACT_APP_API + "/coupons");
+  await axios.get(process.env.REACT_APP_API + "/coupons",
+    {
+      headers: {
+        estoreid: process.env.REACT_APP_ESTORE_ID,
+      },
+    });
 
 export const removeCoupon = async (couponId, authToken) =>
   await axios.delete(process.env.REACT_APP_API + "/coupon/" + couponId, {
     headers: {
       authToken,
+      estoreid: process.env.REACT_APP_ESTORE_ID,
     },
   });
 
@@ -17,6 +23,7 @@ export const createCoupon = async (coupon, authToken) =>
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -27,6 +34,7 @@ export const updateCoupon = async (couponId, activate, authToken) =>
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );

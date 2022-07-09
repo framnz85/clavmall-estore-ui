@@ -65,7 +65,7 @@ const CreateCoupon = () => {
       discount: values.discount,
     }, user.token)
       .then((res) => {
-        admin.coupons.push(res.data);
+        admin.coupons.push(res.data.ops[0]);
         setValues({
           ...values,
           name: "",
@@ -79,7 +79,7 @@ const CreateCoupon = () => {
           type: "ADMIN_OBJECT_XII",
           payload: { coupons: [...admin.coupons] },
         });
-        toast.success(`"${res.data.name}" is created`);
+        toast.success(`"${res.data.ops[0].name}" is created`);
       })
       .catch((error) => {
         if (error.response.status === 400) toast.error(error.response.data);

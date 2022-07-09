@@ -17,7 +17,7 @@ const LocationButton = ({ values, loading, setLoading, edit }) => {
   let dispatch = useDispatch();
   const { minorder, maxorder, discount, servefee, deltime } = values;
 
-  const { user } = useSelector((state) => ({ ...state }));
+  const { user, estore } = useSelector((state) => ({ ...state }));
 
   const handleSubmit = () => {
     const {
@@ -113,7 +113,7 @@ const LocationButton = ({ values, loading, setLoading, edit }) => {
     }
     
     updateChanges(
-      process.env.REACT_APP_ESTORE_ID,
+      estore._id,
       "locationChange",
       user.token
     ).then((res) => {

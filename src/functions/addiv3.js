@@ -15,6 +15,7 @@ export const getNewAdded3 = async (coucode, authToken) =>
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -42,7 +43,12 @@ export const getAllMyAddiv3 = async (couid, addiv1, addiv2, coucode) =>
       "/" +
       addiv2 +
       "/?coucode=" +
-      coucode
+      coucode,
+        {
+            headers: {
+                estoreid: process.env.REACT_APP_ESTORE_ID,
+            },
+        }
   );
 
 export const updateMyAddiv3 = async (coucode, addiv3, values, authToken) =>
@@ -56,6 +62,7 @@ export const updateMyAddiv3 = async (coucode, addiv3, values, authToken) =>
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );

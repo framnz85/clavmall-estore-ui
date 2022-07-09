@@ -5,6 +5,7 @@ import CountrySelect from "../../modal/location/CountrySelect";
 import Addiv1Select from "../../modal/location/Addiv1Select";
 import Addiv2Select from "../../modal/location/Addiv2Select";
 import Addiv3Select from "../../modal/location/Addiv3Select";
+import SameAddress from "./SameAddress";
 import { getAllMyCountry } from "../../../functions/country";
 
 const HomeAddress = ({values, setValues, loading, setLoading, addressError}) => {
@@ -42,6 +43,16 @@ const HomeAddress = ({values, setValues, loading, setLoading, addressError}) => 
 
     return (
         <>
+            <SameAddress
+                address={values.address}
+                setAddiv1s={setAddiv1s}
+                setAddiv2s={setAddiv2s}
+                setAddiv3s={setAddiv3s}
+                setLoading={setLoading}
+                homeAddress={homeAddress}
+                setHomeAddress={setHomeAddress}
+            />
+            <br /><br />
             <div className="form-group">
                 <label>
                     <b>Country</b>

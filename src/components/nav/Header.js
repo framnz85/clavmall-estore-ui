@@ -33,26 +33,29 @@ const Header = () => {
 
   let { estore, user, inputs } = useSelector((state) => ({ ...state }));
 
-  const rightStyle = {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    backgroundColor: estore.headerColor,
-    color: "#ffffff",
-  };
-
-  const searchStyle = {
-    position: "absolute",
-    top: 0,
-    right: 200,
-    width: "200px",
-  };
-
-  const headerStyle = {
-    backgroundColor: estore.headerColor,
-    color: "#ffffff",
-    borderBottom: `1px solid ${estore.headerColor}`,
-  };
+  const menuStyle = {
+    mainContainer: {
+      backgroundColor: estore.headerColor,
+      height: "50px",
+    },
+    leftStyle: {
+      color: "#ffffff",
+      backgroundColor: estore.headerColor,
+      borderBottom: `1px solid ${estore.headerColor}`,
+    },
+    headerStyle: {
+      color: "#ffffff",
+      borderBottom: `1px solid ${estore.headerColor}`,
+    },
+    searchStyle: {
+      width: "300px",
+    },
+    rightStyle: {
+      color: "#ffffff",
+      backgroundColor: estore.headerColor,
+      borderBottom: `1px solid ${estore.headerColor}`,
+    }
+  }
 
   const handleClick = (e) => {
     setCurrent(e.key);
@@ -64,7 +67,7 @@ const Header = () => {
         type: "USER_LOGOUT",
         payload: {},
       });
-      getEstoreInfo(process.env.REACT_APP_ESTORE_ID).then((estore) => {
+      getEstoreInfo(estore._id).then((estore) => {
         dispatch({
           type: "ESTORE_LOGOUT",
           payload: estore.data[0],
@@ -82,99 +85,109 @@ const Header = () => {
   };
 
   return (
-    <>
+    <div
+      className="d-flex justify-content-between"
+      style={menuStyle.mainContainer}
+    >
       <Menu
         onClick={handleClick}
         selectedKeys={[current]}
         mode="horizontal"
-        style={headerStyle}
+        style={menuStyle.leftStyle}
       >
-        <Item key="home" icon={<HomeOutlined />} style={headerStyle}>
-          <Link to="/" style={headerStyle}>
+        <Item key="home" icon={<HomeOutlined />} style={menuStyle.headerStyle}>
+          <Link to="/" style={menuStyle.headerStyle}>
             Home
           </Link>
         </Item>
-        <Item key="shop" icon={<ShoppingOutlined />} style={headerStyle}>
-          <Link to="/shop" style={headerStyle}>
+        <Item key="shop" icon={<ShoppingOutlined />} style={menuStyle.headerStyle}>
+          <Link to="/shop" style={menuStyle.headerStyle}>
             Shop
           </Link>
         </Item>
         <Item
           key="location"
           icon={<EnvironmentOutlined />}
-          style={headerStyle}
+          style={menuStyle.headerStyle}
           onClick={() => setLocModalVisible(true)}
         >
-          <span style={headerStyle}>Location</span>
+          <span style={menuStyle.headerStyle}>Location</span>
         </Item>
-        <Item key="cart" icon={<ShoppingCartOutlined />} style={headerStyle}>
-          <Link to="/cart" style={headerStyle}>
+        <Item key="cart" icon={<ShoppingCartOutlined />} style={menuStyle.headerStyle}>
+          <Link to="/cart" style={menuStyle.headerStyle}>
             <Badge count={inputs.cart && inputs.cart.map(p => parseInt(p.count)).reduce((a, b) => a + b, 0)} offset={[11, 0]}>
-              <span style={headerStyle}>Cart</span>
+              <span style={menuStyle.headerStyle}>Cart</span>
             </Badge>
           </Link>
         </Item>
+        <Item key="search">
+        </Item>
       </Menu>
 
-      <Menu className="m-2" style={searchStyle}>
-        <SearchHead />
-      </Menu>
+      <div className="d-flex justify-content-end">
+
+        <Menu className="m-2" style={menuStyle.searchStyle}>
+          <SearchHead />
+        </Menu>
+
+        {user.token && (
+          <Menu
+            onClick={handleClick}
+            selectedKeys={[current]}
+            mode="horizontal"
+            style={menuStyle.rightStyle}
+             className="d-flex justify-content-between"
+          >
+            <SubMenu
+              key="SubMenu"
+              icon={<UserOutlined />}
+              title={user.name || (user.email && user.email.split("@")[0])}
+              style={menuStyle.headerStyle}
+            >
+              {user && user.role === "admin" && (
+                <Item key="admin">
+                  <Link to="/admin/dashboard">Dashboard</Link>
+                </Item>
+              )}
+              {user && user.role === "subscriber" && (
+                <Item key="subscriber">
+                  <Link to="/user/orders">Dashboard</Link>
+                </Item>
+              )}
+              <Item key="logout" icon={<LogoutOutlined />} onClick={logout}>
+                Logout
+              </Item>
+            </SubMenu>
+          </Menu>
+        )}
+
+        {!user.token && (
+          <Menu
+            onClick={handleClick}
+            selectedKeys={[current]}
+            mode="horizontal"
+            style={menuStyle.rightStyle}
+          >
+            <Item key="login" icon={<LoginOutlined />} style={menuStyle.headerStyle}>
+              <Link to="/login" style={menuStyle.headerStyle}>
+                Login
+              </Link>
+            </Item>
+            <Item key="register" icon={<UserAddOutlined />} style={menuStyle.headerStyle}>
+              <Link to="/register" style={menuStyle.headerStyle}>
+                Register
+              </Link>
+            </Item>
+          </Menu>
+        )}
+        
+      </div>
 
       <LocationModal
         locModalVisible={locModalVisible}
         setLocModalVisible={setLocModalVisible}
       />
-
-      {user.token && (
-        <Menu
-          onClick={handleClick}
-          selectedKeys={[current]}
-          mode="horizontal"
-          style={rightStyle}
-        >
-          <SubMenu
-            key="SubMenu"
-            icon={<UserOutlined />}
-            title={user.name || (user.email && user.email.split("@")[0])}
-            style={headerStyle}
-          >
-            {user && user.role === "admin" && (
-              <Item key="admin">
-                <Link to="/admin/dashboard">Dashboard</Link>
-              </Item>
-            )}
-            {user && user.role === "subscriber" && (
-              <Item key="subscriber">
-                <Link to="/user/orders">Dashboard</Link>
-              </Item>
-            )}
-            <Item key="logout" icon={<LogoutOutlined />} onClick={logout}>
-              Logout
-            </Item>
-          </SubMenu>
-        </Menu>
-      )}
-
-      {!user.token && (
-        <Menu
-          onClick={handleClick}
-          selectedKeys={[current]}
-          mode="horizontal"
-          style={rightStyle}
-        >
-          <Item key="login" icon={<LoginOutlined />} style={headerStyle}>
-            <Link to="/login" style={headerStyle}>
-              Login
-            </Link>
-          </Item>
-          <Item key="register" icon={<UserAddOutlined />} style={headerStyle}>
-            <Link to="/register" style={headerStyle}>
-              Register
-            </Link>
-          </Item>
-        </Menu>
-      )}
-    </>
+    </div>
   );
 };
 

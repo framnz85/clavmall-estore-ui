@@ -98,7 +98,7 @@ const ImageCarouselLoad = ({ values, setValues, setLoading }) => {
 
     const handleImageRemove = (public_id) => {
         setLoading(true);
-        removeFileImage(public_id, estore, user.token).then((res) => {console.log(res.data)
+        removeFileImage(public_id, estore, user.token).then((res) => {
             if (res.data.err) {
                 toast.error(res.data.err);
             }

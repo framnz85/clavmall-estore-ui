@@ -19,5 +19,10 @@ export const getAllMyAddiv2 = async (couid, addiv1, coucode) =>
       "/" +
       addiv1 +
       "/?coucode=" +
-      coucode
+      coucode,
+    {
+      headers: {
+        estoreid: process.env.REACT_APP_ESTORE_ID,
+      },
+    }
   );

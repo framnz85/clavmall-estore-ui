@@ -24,7 +24,7 @@ const ParentUpdate = ({ history, match }) => {
   const [values, setValues] = useState(initialState);
   const [loading, setLoading] = useState(false);
 
-  const { user, parents } = useSelector((state) => ({ ...state }));
+  const { user, parents, estore } = useSelector((state) => ({ ...state }));
 
   useEffect(() => {
     loadParent();
@@ -76,7 +76,7 @@ const ParentUpdate = ({ history, match }) => {
           payload: parents,
         });
         updateChanges(
-          process.env.REACT_APP_ESTORE_ID,
+          estore._id,
           "parentChange",
           user.token
         ).then((res) => {

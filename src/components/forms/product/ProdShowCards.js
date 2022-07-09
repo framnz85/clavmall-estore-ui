@@ -59,7 +59,7 @@ const ProdShowCards = ({ values, setValues, loading }) => {
                         });
 
                         updateChanges(
-                            process.env.REACT_APP_ESTORE_ID,
+                            estore._id,
                             "productChange",
                             user.token
                         ).then((res) => {

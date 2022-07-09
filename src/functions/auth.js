@@ -7,6 +7,7 @@ export const createOrUpdateUser = async (authToken, address) => {
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -19,6 +20,7 @@ export const currentUser = async (authToken) => {
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -31,6 +33,7 @@ export const currentAdmin = async (authToken) => {
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -43,6 +46,7 @@ export const updateEmailAddress = async (oldEmail, authToken) => {
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );

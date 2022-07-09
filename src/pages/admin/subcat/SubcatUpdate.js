@@ -28,7 +28,7 @@ const SubcatUpdate = ({ history, match }) => {
   const [values, setValues] = useState(initialState);
   const [loading, setLoading] = useState(false);
 
-  const { user, categories, subcats } = useSelector((state) => ({
+  const { user, categories, subcats, estore } = useSelector((state) => ({
     ...state,
   }));
 
@@ -114,7 +114,7 @@ const SubcatUpdate = ({ history, match }) => {
           payload: subcats,
         });
         updateChanges(
-          process.env.REACT_APP_ESTORE_ID,
+          estore._id,
           "subcatChange",
           user.token
         ).then((res) => {

@@ -7,6 +7,7 @@ export const userCart = async (cart, authToken) =>
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -15,6 +16,7 @@ export const getUserCart = async (authToken, coucode, addiv3Id) =>
   await axios.get(process.env.REACT_APP_API + "/user/cart/" + coucode + "/" + addiv3Id, {
     headers: {
       authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
     },
   });
 
@@ -22,6 +24,7 @@ export const emptyUserCart = async (authToken) =>
   await axios.delete(process.env.REACT_APP_API + "/user/cart", {
     headers: {
       authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
     },
   });
 
@@ -32,6 +35,7 @@ export const saveUserAddress = async (authToken, address, homeAddress, coupon) =
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -43,6 +47,7 @@ export const applyCoupon = async (authToken, coupon) =>
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -54,6 +59,7 @@ export const createOrder = async (orderObjects, authToken) =>
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -87,6 +93,7 @@ export const getUserOrders = async (
   }, {
     headers: {
       authToken,
+      estoreid: process.env.REACT_APP_ESTORE_ID,
     },
   });
 
@@ -94,6 +101,7 @@ export const getUserOrder = async (orderId, authToken) =>
   await axios.get(process.env.REACT_APP_API + "/user/order/" + orderId, {
     headers: {
       authToken,
+      estoreid: process.env.REACT_APP_ESTORE_ID,
     },
   });
 
@@ -101,6 +109,7 @@ export const getWishlist = async (authToken) =>
   await axios.get(process.env.REACT_APP_API + "/user/wishlist", {
     headers: {
       authToken,
+      estoreid: process.env.REACT_APP_ESTORE_ID,
     },
   });
 
@@ -111,6 +120,7 @@ export const removeWishlist = async (productId, authToken) =>
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -122,6 +132,7 @@ export const addToWishlist = async (productId, authToken) =>
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -133,6 +144,7 @@ export const updateProfile = async (values, authToken) =>
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   ); 

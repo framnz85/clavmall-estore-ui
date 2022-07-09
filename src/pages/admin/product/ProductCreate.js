@@ -97,13 +97,13 @@ const ProductCreate = ({ history }) => {
       user.token
     )
       .then((res) => {
-        toast.success(`${res.data.title} is created`);
+        toast.success(`${res.data.ops[0].title} is created`);
         setLoading(false);
         setValues({ ...initialState, images: [] });
         initialState.images = [];
 
         if (admin.products.values.length > 0) {
-          admin.products.values.unshift({ ...res.data, page: 1 });
+          admin.products.values.unshift({ ...res.data.ops[0], page: 1 });
 
           const newProdCount = parseInt(admin.products.itemsCount) + 1;
 
@@ -118,7 +118,7 @@ const ProductCreate = ({ history }) => {
           });
 
           updateChanges(
-            process.env.REACT_APP_ESTORE_ID,
+            estore._id,
             "productChange",
             user.token
           ).then((res) => {

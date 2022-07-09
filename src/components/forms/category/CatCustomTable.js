@@ -27,31 +27,22 @@ const CatCustomTable = ({ values, setValues, loading, setLoading }) => {
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const loadCategories = () => {
-        if (typeof window !== undefined) {
-            if (!localStorage.getItem("categories")) {
-                setLoading(true);
-                getCategories({}).then((category) => {
-                    setValues({
-                        ...values,
-                        itemsCount: category.data.categories.length
-                    });
-                    dispatch({
-                        type: "CATEGORY_LIST_IV",
-                        payload: category.data.categories,
-                    });
-                    dispatch({
-                        type: "PRODUCT_LIST_III",
-                        payload: category.data.products,
-                    });
-                    setLoading(false);
-                });
-            } else {
-                setValues({
-                    ...values,
-                    itemsCount: categories.length
-                });
-            }
-        }
+        setLoading(true);
+        getCategories({}).then((category) => {
+            setValues({
+                ...values,
+                itemsCount: category.data.catComplete.length
+            });
+            dispatch({
+                type: "CATEGORY_LIST_IV",
+                payload: category.data.catComplete,
+            });
+            dispatch({
+                type: "PRODUCT_LIST_III",
+                payload: category.data.products,
+            });
+            setLoading(false);
+        });
     };
 
     const handleRemove = async (slug, name) => {
@@ -67,17 +58,15 @@ const CatCustomTable = ({ values, setValues, loading, setLoading }) => {
                 setLoading(true);
                 removeCategory(slug, user.token)
                     .then((res) => {
-                        setLoading(false);
-                        toast.error(`"${res.data.name}" deleted.`);
                         const result = categories.filter(
                             (category) => category.slug !== slug
                         );
                         dispatch({
-                            type: "CATEGORY_LIST_IV",
+                            type: "CATEGORY_REMOVE",
                             payload: result,
                         });
                         updateChanges(
-                            process.env.REACT_APP_ESTORE_ID,
+                            estore._id,
                             "categoryChange",
                             user.token
                         ).then((res) => {
@@ -86,6 +75,8 @@ const CatCustomTable = ({ values, setValues, loading, setLoading }) => {
                                 payload: res.data,
                             });
                         });
+                        setLoading(false);
+                        toast.error(`"${res.data.name}" deleted.`);
                     })
                     .catch((error) => {
                         if (error.response.status === 400) toast.error(error.response.data);

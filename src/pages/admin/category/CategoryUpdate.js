@@ -24,7 +24,7 @@ const CategoryUpdate = ({ history, match }) => {
   const [values, setValues] = useState(initialState);
   const [loading, setLoading] = useState(false);
 
-  const { user, categories } = useSelector((state) => ({ ...state }));
+  const { user, categories, estore } = useSelector((state) => ({ ...state }));
 
   useEffect(() => {
     loadCategory();
@@ -76,7 +76,7 @@ const CategoryUpdate = ({ history, match }) => {
           payload: categories,
         });
         updateChanges(
-          process.env.REACT_APP_ESTORE_ID,
+          estore._id,
           "categoryChange",
           user.token
         ).then((res) => {

@@ -52,12 +52,12 @@ const ProfileDetails = () => {
   });
 
   useEffect(() => {
-      setValues({
-        ...values,
-        name: user.name,
-        address: user.adddress,
-        homeAddress: user.homeAddress
-    })
+    setValues({
+      ...values,
+      name: user.name,
+      address: user.address,
+      homeAddress: user.homeAddress
+    });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const schema = {

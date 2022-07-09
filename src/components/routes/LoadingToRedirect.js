@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { signOut } from "firebase/auth";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
 import { auth } from "../../functions/firebase";
@@ -12,6 +12,8 @@ const LoadingToRedirect = () => {
   const [count, setCount] = useState(5);
   let history = useHistory();
 
+  const { estore } = useSelector((state) => ({ ...state }));
+
   useEffect(() => {
     const logout = () => {
       signOut(auth).then(() => {
@@ -20,7 +22,7 @@ const LoadingToRedirect = () => {
           payload: {},
         });
         localStorage.clear();
-        getEstoreInfo(process.env.REACT_APP_ESTORE_ID).then((estore) => {
+        getEstoreInfo(estore._id).then((estore) => {
           dispatch({
             type: "ESTORE_INFO_XII",
             payload: estore.data[0],
@@ -39,7 +41,7 @@ const LoadingToRedirect = () => {
     count === 0 && logout();
 
     return () => clearInterval(interval);
-  }, [count, history, dispatch]);
+  }, [count, history, dispatch, estore._id]);
 
   return (
     <div className="container p-5 text-center text-danger">

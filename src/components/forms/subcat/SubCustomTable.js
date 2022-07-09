@@ -93,11 +93,11 @@ const SubCustomTable = ({ values, setValues, loading, setLoading }) => {
                         toast.error(`"${res.data.name}" deleted.`);
                         const result = subcats.filter((subcat) => subcat.slug !== slug);
                         dispatch({
-                            type: "SUBCAT_LIST_V",
+                            type: "SUBCAT_REMOVE",
                             payload: result,
                         });
                         updateChanges(
-                            process.env.REACT_APP_ESTORE_ID,
+                            estore._id,
                             "subcatChange",
                             user.token
                         ).then((res) => {

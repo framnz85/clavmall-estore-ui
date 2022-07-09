@@ -8,7 +8,8 @@ let initialState = {
     values: [],
     pages: [],
     itemsCount: 0,
-  }
+  },
+  categories: []
 };
 
 export const adminReducer = (state = initialState, action) => {

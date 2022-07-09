@@ -35,7 +35,7 @@ const LocationUpdate = ({ history, match }) => {
   const [values, setValues] = useState(initialState);
   const [loading, setLoading] = useState(0);
 
-  const { user, admin } = useSelector((state) => ({ ...state }));
+  const { user, admin, estore } = useSelector((state) => ({ ...state }));
 
   useEffect(() => {
     loadAddiv3();
@@ -74,7 +74,7 @@ const LocationUpdate = ({ history, match }) => {
     setLoading(1);
     updateMyAddiv3(coucode, addiv3, values, user.token).then((res) => {
       updateChanges(
-        process.env.REACT_APP_ESTORE_ID,
+        estore._id,
         "locationChange",
         user.token
       ).then((res) => {

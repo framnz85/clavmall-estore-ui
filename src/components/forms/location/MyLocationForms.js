@@ -84,7 +84,7 @@ const MyLocationForm = ({
         onOk() {
           deleteAddiv2(country.countryCode, addiv2._id, user.token).then(() => {
             updateChanges(
-              process.env.REACT_APP_ESTORE_ID,
+              estore._id,
               "locationChange",
               user.token
             ).then((res) => {
@@ -112,7 +112,7 @@ const MyLocationForm = ({
         onOk() {
           deleteAddiv1(country.countryCode, addiv1._id, user.token).then(() => {
             updateChanges(
-              process.env.REACT_APP_ESTORE_ID,
+              estore._id,
               "locationChange",
               user.token
             ).then((res) => {

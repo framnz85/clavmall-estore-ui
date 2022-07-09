@@ -52,6 +52,8 @@ export const categoryReducer = (state = initialState, action) => {
       return reducerExec(state, action.payload);
     case "CATEGORY_LIST_XV":
       return reducerExec(state, action.payload);
+    case "CATEGORY_REMOVE":
+      return action.payload;
     default:
       return state;
   }

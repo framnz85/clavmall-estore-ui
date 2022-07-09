@@ -10,7 +10,7 @@ const ProductImage = ({ values, setValues, width, height, edit }) => {
   let dispatch = useDispatch();
   const { slug } = values;
 
-  const { user, admin } = useSelector((state) => ({ ...state }));
+  const { user, admin, estore } = useSelector((state) => ({ ...state }));
 
   const [loading, setLoading] = useState(false);
 
@@ -30,7 +30,7 @@ const ProductImage = ({ values, setValues, width, height, edit }) => {
     });
 
     updateChanges(
-      process.env.REACT_APP_ESTORE_ID,
+      estore._id,
       "productChange",
       user.token
     ).then((res) => {
@@ -59,7 +59,7 @@ const ProductImage = ({ values, setValues, width, height, edit }) => {
     });
 
     updateChanges(
-      process.env.REACT_APP_ESTORE_ID,
+      estore._id,
       "productChange",
       user.token
     ).then((res) => {

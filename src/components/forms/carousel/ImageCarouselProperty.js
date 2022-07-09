@@ -54,7 +54,7 @@ const ImageCarouselProperty = ({
         },
         {
             type: "ant checked",
-            name: "subcat",
+            name: "subcats",
             label: "Sub-Category",
             style: {
                 float: "left",

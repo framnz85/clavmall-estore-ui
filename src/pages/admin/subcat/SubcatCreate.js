@@ -31,7 +31,7 @@ const SubcatCreate = () => {
   const [values, setValues] = useState(initialState);
   const [loading, setLoading] = useState(false);
 
-  const { user, categories, subcats } = useSelector(
+  const { user, categories, subcats, estore } = useSelector(
     (state) => ({
       ...state,
     })
@@ -67,13 +67,13 @@ const SubcatCreate = () => {
           name: "",
           category: "",
         })
-        subcats.push(res.data);
+        subcats.push(res.data.ops[0]);
         dispatch({
           type: "SUBCAT_LIST_IX",
           payload: subcats,
         });
         updateChanges(
-          process.env.REACT_APP_ESTORE_ID,
+          estore._id,
           "subcatChange",
           user.token
         ).then((res) => {
@@ -83,12 +83,10 @@ const SubcatCreate = () => {
           });
         });
         setLoading(false);
-        toast.success(`"${res.data.name}" is created.`);
+        toast.success(`"${res.data.ops[0].name}" is created.`);
       })
       .catch((error) => {
-        if (error.response.status === 400 || 404)
-          toast.error(error.response.data);
-        else toast.error(error.message);
+        toast.error(error.message);
         setLoading(false);
       });
   };

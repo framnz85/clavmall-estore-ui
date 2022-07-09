@@ -68,11 +68,11 @@ const ParCustomTable = ({ values, setValues, loading, setLoading }) => {
                         toast.error(`"${res.data.name}" deleted.`);
                         const result = parents.filter((parent) => parent.slug !== slug);
                         dispatch({
-                            type: "PARENT_LIST_III",
+                            type: "PARENT_REMOVE",
                             payload: result,
                         });
                         updateChanges(
-                            process.env.REACT_APP_ESTORE_ID,
+                            estore._id,
                             "parentChange",
                             user.token
                         ).then((res) => {

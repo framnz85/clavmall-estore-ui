@@ -36,7 +36,7 @@ const SearchHead = () => {
       value={searchTxt}
       onChange={handleChange}
       onSearch={(value) => handleSubmit(value)}
-      style={{ width: 200 }}
+      style={{ width: "300px" }}
     />
   );
 };

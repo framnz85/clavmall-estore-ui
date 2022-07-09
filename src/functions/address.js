@@ -51,12 +51,18 @@ export const getNewAdded3 = async (coucode, authToken) =>
         {
             headers: {
                 authToken,
+                estoreid: process.env.REACT_APP_ESTORE_ID,
             },
         }
     );
 
 export const getAllMyCountry = async () =>
-    await axios.get(process.env.REACT_APP_API + "/address/mycountry");
+    await axios.get(process.env.REACT_APP_API + "/address/mycountry",
+        {
+            headers: {
+                estoreid: process.env.REACT_APP_ESTORE_ID,
+            },
+        });
 
 export const getAllMyAddiv1 = async (couid, coucode) =>
     await axios.get(
@@ -64,7 +70,12 @@ export const getAllMyAddiv1 = async (couid, coucode) =>
         "/address/myaddiv1/" +
         couid +
         "/?coucode=" +
-        coucode
+        coucode,
+        {
+            headers: {
+                estoreid: process.env.REACT_APP_ESTORE_ID,
+            },
+        }
     );
 
 export const getAllMyAddiv2 = async (couid, addiv1, coucode) =>
@@ -75,7 +86,12 @@ export const getAllMyAddiv2 = async (couid, addiv1, coucode) =>
         "/" +
         addiv1 +
         "/?coucode=" +
-        coucode
+        coucode,
+        {
+            headers: {
+                estoreid: process.env.REACT_APP_ESTORE_ID,
+            },
+        }
     );
 
 export const getAllMyAddiv3 = async (couid, addiv1, addiv2, coucode) =>
@@ -88,7 +104,12 @@ export const getAllMyAddiv3 = async (couid, addiv1, addiv2, coucode) =>
         "/" +
         addiv2 +
         "/?coucode=" +
-        coucode
+        coucode,
+        {
+            headers: {
+                estoreid: process.env.REACT_APP_ESTORE_ID,
+            },
+        }
     );
 
 export const updateMyAddiv3 = async (coucode, addiv3, values, authToken) =>
@@ -102,6 +123,7 @@ export const updateMyAddiv3 = async (coucode, addiv3, values, authToken) =>
         {
             headers: {
                 authToken,
+                estoreid: process.env.REACT_APP_ESTORE_ID,
             },
         }
     );

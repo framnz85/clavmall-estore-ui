@@ -48,7 +48,7 @@ const ManageHomeCarousel = () => {
 
     setLoading(true);
     updateEstore(
-      process.env.REACT_APP_ESTORE_ID,
+      estore._id,
       { ...estore, ...values, estoreChange: echange },
       user.token
     )

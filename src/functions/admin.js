@@ -29,6 +29,7 @@ export const getOrders = async (
   }, {
     headers: {
       authToken,
+      estoreid: process.env.REACT_APP_ESTORE_ID,
     },
   });
 };
@@ -37,6 +38,7 @@ export const getOrder = async (orderId, authToken) =>
   await axios.get(process.env.REACT_APP_API + "/admin/order/" + orderId, {
     headers: {
       authToken,
+      estoreid: process.env.REACT_APP_ESTORE_ID,
     },
   });
 
@@ -47,6 +49,7 @@ export const changeStatus = async (data, authToken) => {
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -54,7 +57,7 @@ export const changeStatus = async (data, authToken) => {
 
 export const uploadFileImage = async (image, estore, authToken) => {
   const uploadUrl = estore.imageStorage === "clavmall"
-    ? `${process.env.REACT_APP_CLAVMALL_IMG}/estore_functions/?estoreId=${estore._id}`
+    ? `${process.env.REACT_APP_CLAVMALL_IMG}/estore_functions/estore${estore._id}/?estoreId=${estore._id}`
     : `${process.env.REACT_APP_API}/uploadimages`;
   
   return await axios.post(uploadUrl, { image },
@@ -68,7 +71,7 @@ export const uploadFileImage = async (image, estore, authToken) => {
 
 export const removeFileImage = async (public_id, estore, authToken) => {
   const uploadUrl = estore.imageStorage === "clavmall"
-    ? `${process.env.REACT_APP_CLAVMALL_IMG}/estore_functions/removeimage.php?estoreId=${estore._id}`
+    ? `${process.env.REACT_APP_CLAVMALL_IMG}/estore_functions/estore${estore._id}/removeimage.php?estoreId=${estore._id}`
     : `${process.env.REACT_APP_API}/removeimage`;
   
   return await axios.post(uploadUrl, { public_id },

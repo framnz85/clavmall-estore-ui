@@ -4,11 +4,11 @@ import _ from "lodash";
 import { Button } from "antd";
 import { toast } from "react-toastify";
 
-import AntCheckbox from "../common/form/AntCheckbox";
 import CountrySelect from "../modal/location/CountrySelect";
 import Addiv1Select from "../modal/location/Addiv1Select";
 import Addiv2Select from "../modal/location/Addiv2Select";
 import Addiv3Select from "../modal/location/Addiv3Select";
+import SameAddress from "./SameAddress";
 
 import { saveUserAddress } from "../../functions/user";
 import { getAllMyCountry } from "../../functions/country";
@@ -111,12 +111,12 @@ const HomeAddress = ({
                 toast.success("Address saved");
 
                 dispatch({
-                type: "LOGGED_IN_USER_VI",
-                payload: {
-                    ...user,
-                    address: { ...user.address, addiv3: res.data.addiv3 },
-                    homeAddress,
-                },
+                    type: "LOGGED_IN_USER_VI",
+                    payload: {
+                        ...user,
+                        address: { ...user.address, addiv3: res.data.addiv3 },
+                        homeAddress,
+                    },
                 });
             }
             });
@@ -126,20 +126,17 @@ const HomeAddress = ({
     return (
         <>
             <h4>Home Address</h4>
-            <AntCheckbox inputProperty={{
-                label: "Same as Delivery Address",
-                onChange: (e) => {
-                    if(e.target.checked)
-                        setHomeAddress(address);
-                    else
-                        setHomeAddress(initialHomeAddress);
-                    setAddressSaved(false);
-                },
-                value: _.isEqual(
-                    { ...address.addiv3, ...address.details }
-                    , { ...homeAddress.addiv3, ...homeAddress.details }
-                ),
-            }} />
+            <SameAddress
+                address={address}
+                setAddiv1s={setAddiv1s}
+                setAddiv2s={setAddiv2s}
+                setAddiv3s={setAddiv3s}
+                setLoading={setLoading}
+                homeAddress={homeAddress}
+                setHomeAddress={setHomeAddress}
+                initialHomeAddress={initialHomeAddress}
+                setAddressSaved={setAddressSaved}
+            />
             <br />
             <br />
             <div className="form-group">
@@ -186,44 +183,44 @@ const HomeAddress = ({
             )}
             {estore.country && estore.country.adDivName2 && (
                 <div className="form-group">
-                <label>
-                    <b>{estore.country.adDivName2}</b>
-                </label>
-                <Addiv2Select
-                    address={homeAddress}
-                    setAddress={setHomeAddress}
-                    countries={countries}
-                    addiv1s={addiv1s}
-                    addiv2s={addiv2s}
-                    setAddiv3s={setAddiv3s}
-                    loading={loading}
-                    setLoading={setLoading}
-                    setAddressSaved={setAddressSaved}
-                />
-                {addressError.homeAddiv2 && (
-                    <div className="text-danger mt-2">{
-                        `Home ${estore.country.adDivName2} ${addressError.homeAddiv2}`
-                    }</div>
-                )}
+                    <label>
+                        <b>{estore.country.adDivName2}</b>
+                    </label>
+                    <Addiv2Select
+                        address={homeAddress}
+                        setAddress={setHomeAddress}
+                        countries={countries}
+                        addiv1s={addiv1s}
+                        addiv2s={addiv2s}
+                        setAddiv3s={setAddiv3s}
+                        loading={loading}
+                        setLoading={setLoading}
+                        setAddressSaved={setAddressSaved}
+                    />
+                    {addressError.homeAddiv2 && (
+                        <div className="text-danger mt-2">{
+                            `Home ${estore.country.adDivName2} ${addressError.homeAddiv2}`
+                        }</div>
+                    )}
                 </div>
             )}
             {estore.country && estore.country.adDivName3 && (
                 <div className="form-group">
-                <label>
-                    <b>{estore.country.adDivName3}</b>
-                </label>
-                <Addiv3Select
-                    address={homeAddress}
-                    setAddress={setHomeAddress}
-                    addiv3s={addiv3s}
-                    loading={loading}
-                    setAddressSaved={setAddressSaved}
-                />
-                {addressError.homeAddiv3 && (
-                    <div className="text-danger mt-2">{
-                        `Home ${estore.country.adDivName3} ${addressError.homeAddiv3}`
-                    }</div>
-                )}
+                    <label>
+                        <b>{estore.country.adDivName3}</b>
+                    </label>
+                    <Addiv3Select
+                        address={homeAddress}
+                        setAddress={setHomeAddress}
+                        addiv3s={addiv3s}
+                        loading={loading}
+                        setAddressSaved={setAddressSaved}
+                    />
+                    {addressError.homeAddiv3 && (
+                        <div className="text-danger mt-2">{
+                            `Home ${estore.country.adDivName3} ${addressError.homeAddiv3}`
+                        }</div>
+                    )}
                 </div>
             )}
             <label>

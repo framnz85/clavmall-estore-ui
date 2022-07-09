@@ -25,7 +25,7 @@ const CategoryCreate = () => {
   const [values, setValues] = useState(initialState);
   const [loading, setLoading] = useState(false);
 
-  const { user, categories } = useSelector((state) => ({
+  const { user, categories, estore } = useSelector((state) => ({
     ...state,
   }));
 
@@ -52,13 +52,13 @@ const CategoryCreate = () => {
           ...values,
           name: "",
         })
-        categories.push(res.data);
+        categories.push(res.data.ops[0]);
         dispatch({
           type: "CATEGORY_LIST_IX",
           payload: categories,
         });
         updateChanges(
-          process.env.REACT_APP_ESTORE_ID,
+          estore._id,
           "categoryChange",
           user.token
         ).then((res) => {
@@ -68,12 +68,10 @@ const CategoryCreate = () => {
           });
         });
         setLoading(false);
-        toast.success(`"${res.data.name}" is created.`);
+        toast.success(`"${res.data.ops[0].name}" is created.`);
       })
       .catch((error) => {
-        if (error.response.status === 400 || 404)
-          toast.error(error.response.data);
-        else toast.error(error.message);
+        toast.error(error.message);
         setLoading(false);
       });
   };

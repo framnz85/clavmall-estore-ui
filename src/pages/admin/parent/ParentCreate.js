@@ -25,7 +25,7 @@ const ParentCreate = () => {
   const [values, setValues] = useState(initialState);
   const [loading, setLoading] = useState(false);
 
-  const { user, parents } = useSelector((state) => ({ ...state }));
+  const { user, parents, estore } = useSelector((state) => ({ ...state }));
 
   const schema = {
     name: Joi.string().min(2).max(32).required(),
@@ -51,13 +51,13 @@ const ParentCreate = () => {
           ...values,
           name: "",
         })
-        parents.push(res.data);
+        parents.push(res.data.ops[0]);
         dispatch({
           type: "PARENT_LIST_VIII",
           payload: parents,
         });
         updateChanges(
-          process.env.REACT_APP_ESTORE_ID,
+          estore._id,
           "parentChange",
           user.token
         ).then((res) => {
@@ -67,7 +67,7 @@ const ParentCreate = () => {
           });
         });
         setLoading(false);
-        toast.success(`"${res.data.name}" is created.`);
+        toast.success(`"${res.data.ops[0].name}" is created.`);
       })
       .catch((error) => {
         if (error.response.status === 400 || 404)

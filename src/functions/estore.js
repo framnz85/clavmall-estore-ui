@@ -1,17 +1,28 @@
 import axios from "axios";
 
 export const getEstoreInfo = async (estid) =>
-  await axios.get(process.env.REACT_APP_API + "/setting/information/" + estid);
+  await axios.get(process.env.REACT_APP_API + "/setting/information/" + estid,
+    {
+      headers: {
+        estoreid: process.env.REACT_APP_ESTORE_ID,
+      },
+    });
 
 export const getEstore = async (estid, authToken) =>
   await axios.get(process.env.REACT_APP_API + "/setting/estore/" + estid, {
     headers: {
       authToken,
+      estoreid: process.env.REACT_APP_ESTORE_ID,
     },
   });
 
 export const getEstoreChanges = async (estid) =>
-  await axios.get(process.env.REACT_APP_API + "/setting/changes/" + estid);
+  await axios.get(process.env.REACT_APP_API + "/setting/changes/" + estid,
+    {
+      headers: {
+        estoreid: process.env.REACT_APP_ESTORE_ID,
+      },
+    });
 
 export const updateEstore = async (estid, values, authToken) =>
   await axios.put(
@@ -20,6 +31,7 @@ export const updateEstore = async (estid, values, authToken) =>
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -31,6 +43,7 @@ export const updateChanges = async (estid, property, authToken) =>
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -42,6 +55,7 @@ export const copyAllAddiv1 = async (country, details, authToken) => {
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -54,6 +68,7 @@ export const saveCreatedLocation1 = async (values, details, authToken) => {
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -66,6 +81,7 @@ export const copyAllAddiv2 = async (country, addiv1, details, authToken) => {
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -78,6 +94,7 @@ export const saveCreatedLocation2 = async (values, details, authToken) => {
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -96,6 +113,7 @@ export const copyAllAddiv3 = async (
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -108,6 +126,7 @@ export const saveCreatedLocation3 = async (values, details, authToken) => {
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -127,6 +146,7 @@ export const saveLocation3 = async (
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -142,6 +162,7 @@ export const deleteAddiv3 = async (couCode, addiv3Id, authToken) => {
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -157,6 +178,7 @@ export const deleteAddiv2 = async (couCode, addiv2Id, authToken) => {
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -172,6 +194,7 @@ export const deleteAddiv1 = async (couCode, addiv1Id, authToken) => {
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -186,6 +209,7 @@ export const updateCarousel = async (images, estore, authToken) => {
     {
         headers: {
             authToken,
+            estoreid: process.env.REACT_APP_ESTORE_ID,
         },
     }
   );

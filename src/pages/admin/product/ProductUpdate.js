@@ -40,7 +40,7 @@ const initialState = {
 const ProductUpdate = ({ history, match }) => {
   let dispatch = useDispatch();
 
-  const { user, admin, products } = useSelector((state) => ({
+  const { user, admin, products, estore } = useSelector((state) => ({
     ...state,
   }));
   const { slug } = match.params;
@@ -195,7 +195,7 @@ const ProductUpdate = ({ history, match }) => {
         });
 
         updateChanges(
-          process.env.REACT_APP_ESTORE_ID,
+          estore._id,
           "productChange",
           user.token
         ).then((res) => {

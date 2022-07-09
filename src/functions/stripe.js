@@ -7,6 +7,7 @@ export const createPaymentIntent = async (authToken) =>
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -18,6 +19,7 @@ export const getCartTotals = async (authToken) =>
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );
@@ -29,6 +31,7 @@ export const getSubGrandTotal = async (authToken) =>
     {
       headers: {
         authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
       },
     }
   );

@@ -76,19 +76,19 @@ const PaymentCreate = () => {
         setValues({ ...initialState, payments: admin.allPayments });
         setMyValues({
           ...myValues,
-          myPayments: [...myValues.myPayments, res.data],
+          myPayments: [...myValues.myPayments, res.data.ops[0]],
           itemsCount: myValues.itemsCount + 1,
         });
         dispatch({
           type: "ADMIN_OBJECT_XV",
-          payload: { myPayments: [...myValues.myPayments, res.data] },
+          payload: { myPayments: [...myValues.myPayments, res.data.ops[0]] },
         });
         toast.success("Payment successfully added.");
         setLoading(false);
         setSaveDetails(false);
       })
       .catch((error) => {
-        toast.error(error.response.data);
+        toast.error(error.message);
         setLoading(false);
         setSaveDetails(false);
       });
