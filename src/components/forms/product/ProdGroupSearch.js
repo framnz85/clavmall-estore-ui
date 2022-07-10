@@ -23,7 +23,7 @@ const ProdGroupSearch = ({ values, setValues, groupSearchSubmit }) => {
     const loadCategories = () => {
         if (typeof window !== undefined) {
             if (!localStorage.getItem("categories")) {
-                getCategories().then((category) => {
+                getCategories(user.address ? user.address : {}).then((category) => {
                     dispatch({
                         type: "CATEGORY_LIST_V",
                         payload: category.data.categories,

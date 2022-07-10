@@ -33,7 +33,7 @@ const SubCustomTable = ({ values, setValues, loading, setLoading }) => {
         if (typeof window !== undefined) {
             if (!localStorage.getItem("categories")) {
                 setLoading(true);
-                getCategories({}).then((category) => {
+                getCategories(user.address ? user.address : {}).then((category) => {
                     setValues({
                         ...values,
                         itemsCount: category.data.categories.length

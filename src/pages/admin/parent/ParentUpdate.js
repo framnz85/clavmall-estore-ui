@@ -39,7 +39,7 @@ const ParentUpdate = ({ history, match }) => {
     if (typeof window !== undefined) {
       if (!localStorage.getItem("categories")) {
         setLoading(true);
-        getCategories().then((category) => {
+        getCategories(user.address ? user.address : {}).then((category) => {
           dispatch({
             type: "CATEGORY_LIST_XI",
             payload: category.data.categories,

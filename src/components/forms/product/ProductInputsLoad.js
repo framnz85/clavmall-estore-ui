@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import ProductInputsChange from "./ProductInputsChange";
 
@@ -18,15 +18,18 @@ const ProductCreation = ({
 }) => {
   let dispatch = useDispatch();
 
+    const { user } = useSelector((state) => ({
+        ...state,
+    }));
+
   useEffect(() => {
     loadCategories();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadCategories = () => {
-    console.log(1);
-    if (typeof window !== undefined) {console.log(2);
-      if (!localStorage.getItem("categories")) {console.log(3);
-        getCategories().then((category) => {console.log(category);
+    if (typeof window !== undefined) {
+      if (!localStorage.getItem("categories")) {
+        getCategories(user.address ? user.address : {}).then((category) => {
           dispatch({
             type: "CATEGORY_LIST_VI",
             payload: category.data.categories,
