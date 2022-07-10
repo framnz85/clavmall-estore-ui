@@ -30,7 +30,7 @@ const ImageCarouselLoad = ({ values, setValues, setLoading }) => {
                 getCategories(user.address ? user.address : {}).then((category) => {
                     dispatch({
                         type: "CATEGORY_LIST_III",
-                        payload: category.data.categories,
+                        payload: category.data.catComplete,
                     });
                     dispatch({
                         type: "PRODUCT_LIST_II",

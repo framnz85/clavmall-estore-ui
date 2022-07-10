@@ -20,7 +20,7 @@ const ImageCarouselProperty = ({
     handleImageRemove
 }) => {
 
-    const { categories, parents } = useSelector((state) => ({ ...state }));
+    const { categories } = useSelector((state) => ({ ...state }));
 
     const { carouselImages } = values;
 
