@@ -4,7 +4,6 @@ import { useDispatch } from "react-redux";
 import ProductInputsChange from "./ProductInputsChange";
 
 import { getCategories } from "../../../functions/category";
-import { getParents } from "../../../functions/parent";
 
 const ProductCreation = ({
   values,
@@ -12,6 +11,8 @@ const ProductCreation = ({
   loading,
   subcatOptions,
   setSubcatOptions,
+  parentOptions,
+  setParentOptions,
   setSaveVariant,
   updatingProduct,
 }) => {
@@ -19,10 +20,6 @@ const ProductCreation = ({
 
   useEffect(() => {
     loadCategories();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    loadParents();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadCategories = () => {
@@ -42,19 +39,6 @@ const ProductCreation = ({
     }
   };
 
-  const loadParents = () => {
-    if (typeof window !== undefined) {
-      if (!localStorage.getItem("parents")) {
-        getParents().then((parent) => {
-          dispatch({
-            type: "PARENT_LIST_V",
-            payload: parent.data,
-          });
-        });
-      }
-    }
-  };
-
   return (
     <div>
       <ProductInputsChange
@@ -63,6 +47,8 @@ const ProductCreation = ({
         loading={loading}
         subcatOptions={subcatOptions}
         setSubcatOptions={setSubcatOptions}
+        parentOptions={parentOptions}
+        setParentOptions={setParentOptions}
         updatingProduct={updatingProduct}
         setSaveVariant={setSaveVariant}
       />

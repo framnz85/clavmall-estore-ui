@@ -11,10 +11,16 @@ import { updateChanges } from "../../../functions/estore";
 
 const initialState = {
   name: "",
+  category: "",
+  searchedCat: "",
   itemsCount: 0,
   pageSize: 20,
   currentPage: 1,
   sortkey: "",
+  sortkeys: [
+    { id: "1", label: "Ascending", value: "name", sort: 1 },
+    { id: "2", label: "Descending", value: "name", sort: -1 },
+  ],
   sort: -1,
   searchQuery: "",
 };
@@ -25,7 +31,7 @@ const ParentCreate = () => {
   const [values, setValues] = useState(initialState);
   const [loading, setLoading] = useState(false);
 
-  const { user, parents, estore } = useSelector((state) => ({ ...state }));
+  const { user, categories, parents, estore } = useSelector((state) => ({ ...state }));
 
   const schema = {
     name: Joi.string().min(2).max(32).required(),
@@ -45,11 +51,12 @@ const ParentCreate = () => {
 
     setLoading(true);
 
-    createParent({ name: values.name }, user.token)
+    createParent({ name: values.name, parent: values.category }, user.token)
       .then((res) => {
         setValues({
           ...values,
           name: "",
+          category: "",
         })
         parents.push(res.data.ops[0]);
         dispatch({
@@ -92,6 +99,7 @@ const ParentCreate = () => {
             setValues={setValues}
             loading={loading}
             setLoading={setLoading}
+            categories={categories}
             edit={false}
           />
 

@@ -34,6 +34,7 @@ const ProductCreate = ({ history }) => {
   const [values, setValues] = useState(initialState);
   const [loading, setLoading] = useState(false);
   const [subcatOptions, setSubcatOptions] = useState([]);
+  const [parentOptions, setParentOptions] = useState([]);
   const [saveVariant, setSaveVariant] = useState(false);
 
   const schema = {
@@ -165,6 +166,8 @@ const ProductCreate = ({ history }) => {
             handleSubmit={handleSubmit}
             subcatOptions={subcatOptions}
             setSubcatOptions={setSubcatOptions}
+            parentOptions={parentOptions}
+            setParentOptions={setParentOptions}
             setSaveVariant={setSaveVariant}
             edit={false}
           />

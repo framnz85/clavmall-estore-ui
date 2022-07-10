@@ -6,8 +6,12 @@ import {
 } from "@ant-design/icons";
 import { Modal, Pagination } from "antd";
 import { toast } from "react-toastify";
+
 import InputSearch from '../../common/form/InputSearch';
 import CustomTable1 from "../../common/table/CustomTable1";
+import ParGroupSearch from "./ParGroupSearch";
+
+import { getCategories } from '../../../functions/category';
 import { getParents, removeParent } from '../../../functions/parent';
 import { updateChanges } from "../../../functions/estore";
 
@@ -19,13 +23,37 @@ const ParCustomTable = ({ values, setValues, loading, setLoading }) => {
 
     const [keyword, setKeyword] = useState("");
 
-    const { estore, user, parents } = useSelector((state) => ({
+    const { estore, user, categories, parents } = useSelector((state) => ({
         ...state,
     }));
 
     useEffect(() => {
+        loadCategories();
         loadParents();
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const loadCategories = () => {
+        if (typeof window !== undefined) {
+            if (!localStorage.getItem("categories")) {
+                setLoading(true);
+                getCategories({}).then((category) => {
+                    setValues({
+                        ...values,
+                        itemsCount: category.data.categories.length
+                    });
+                    dispatch({
+                        type: "CATEGORY_LIST_VII",
+                        payload: category.data.categories,
+                    });
+                    dispatch({
+                        type: "PRODUCT_LIST_VI",
+                        payload: category.data.products,
+                    });
+                    setLoading(false);
+                });
+            }
+        }
+    };
 
     const loadParents = () => {
         if (typeof window !== undefined) {
@@ -111,6 +139,8 @@ const ParCustomTable = ({ values, setValues, loading, setLoading }) => {
                 data={values}
                 setData={setValues}
             />
+            
+            <ParGroupSearch values={values} setValues={setValues} /><br /><br /><br />
 
             {loading && (
                 <h4 style={{ margin: "20px 0" }}>
@@ -121,11 +151,20 @@ const ParCustomTable = ({ values, setValues, loading, setLoading }) => {
             {parents &&
                 parents
                     .filter(searched(keyword))
+                    .filter((parent) => values.searchedCat ? parent.parent === values.searchedCat : parent.parent !== values.searchedCat)
+                    .sort((a, b) =>
+                        a[values.sortkey] > b[values.sortkey]
+                            ? values.sort
+                            : b[values.sortkey] > a[values.sortkey]
+                                ? -values.sort
+                                : 0
+                    )
                     .slice(currentPage * pageSize - pageSize, currentPage * pageSize)
                     .map((parent) => (
                         <CustomTable1
                             key={parent._id}
                             data={parent}
+                            subname={categories.length && categories.filter((c) => c._id === parent.parent)[0].name}
                             bgColor={estore.carouselColor}
                             handleRemove={handleRemove}
                             linkTo={`/admin/parent/${parent.slug}`}

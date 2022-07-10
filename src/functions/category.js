@@ -40,6 +40,14 @@ export const getCategorySubcats = async (_id) =>
       },
     });
 
+export const getCategoryParents = async (_id) =>
+  await axios.get(process.env.REACT_APP_API + "/category/parents/" + _id,
+    {
+      headers: {
+        estoreid: process.env.REACT_APP_ESTORE_ID,
+      },
+    });
+
 export const getProductByCategory = async (_id, address) =>
   await axios.post(process.env.REACT_APP_API + "/categories/product/" + _id, {
     address,

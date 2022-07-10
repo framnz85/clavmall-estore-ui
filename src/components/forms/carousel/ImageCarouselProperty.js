@@ -13,6 +13,7 @@ const listSelect = {
 const ImageCarouselProperty = ({
     values,
     subcatOptions,
+    parentOptions,
     handleActivateChange,
     handleFolderChange,
     handleChildChange,
@@ -99,7 +100,7 @@ const ImageCarouselProperty = ({
                 float: "left",
             },
             value: "",
-            options: parents.map(
+            options: parentOptions.map(
                 (parent) =>
                 (parent = {
                     ...parent,

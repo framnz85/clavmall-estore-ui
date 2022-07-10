@@ -6,6 +6,7 @@ const ParentInputs = ({
     values,
     setValues,
     loading,
+    categories,
     edit,
 }) => {
 
@@ -14,6 +15,22 @@ const ParentInputs = ({
     };
 
     const formProperty = [
+        {
+            type: "select",
+            name: "category",
+            label: "Select Category",
+            onChange: (e) => setValues({
+                ...values, category: e.target.value
+            }),
+            value: values.category,
+            disabled: loading,
+            options: categories.map(
+                (cat) =>
+                    (cat = { ...cat, key: cat._id, value: cat._id, text: cat.name })
+            ),
+            show: true,
+            edit,
+        },
         {
             type: "text",
             name: "name",

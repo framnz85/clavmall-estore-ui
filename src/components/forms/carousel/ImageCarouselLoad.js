@@ -4,8 +4,11 @@ import { toast } from "react-toastify";
 
 import ImageCarouselProperty from "./ImageCarouselProperty";
 
-import { getCategories, getCategorySubcats } from "../../../functions/category";
-import { getParents } from "../../../functions/parent";
+import {
+    getCategories,
+    getCategorySubcats,
+    getCategoryParents
+} from "../../../functions/category";
 import { updateCarousel } from "../../../functions/estore";
 import { removeFileImage } from "../../../functions/admin";
 
@@ -13,12 +16,12 @@ const ImageCarouselLoad = ({ values, setValues, setLoading }) => {
     let dispatch = useDispatch();
 
     const [subcatOptions, setSubcatOptions] = useState([]);
+    const [parentOptions, setParentOptions] = useState([]);
 
     const { estore, user, categories } = useSelector((state) => ({ ...state }));
 
     useEffect(() => {
         loadCategories();
-        loadParents();
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const loadCategories = () => {
@@ -32,19 +35,6 @@ const ImageCarouselLoad = ({ values, setValues, setLoading }) => {
                     dispatch({
                         type: "PRODUCT_LIST_II",
                         payload: category.data.products,
-                    });
-                });
-            }
-        }
-    };
-
-    const loadParents = () => {
-        if (typeof window !== undefined) {
-            if (!localStorage.getItem("parents")) {
-                getParents().then((parent) => {
-                    dispatch({
-                        type: "PARENT_LIST_II",
-                        payload: parent.data,
                     });
                 });
             }
@@ -92,6 +82,14 @@ const ImageCarouselLoad = ({ values, setValues, setLoading }) => {
                     payload: res.data,
                 });
             });
+
+            getCategoryParents(catid[0]._id).then((res) => {
+                setParentOptions(res.data);
+                dispatch({
+                    type: "PARENT_LIST_XII",
+                    payload: res.data,
+                });
+            });
         }
     }
 
@@ -131,6 +129,7 @@ const ImageCarouselLoad = ({ values, setValues, setLoading }) => {
         <ImageCarouselProperty
             values={values}
             subcatOptions={subcatOptions}
+            parentOptions={parentOptions}
             handleActivateChange={handleActivateChange}
             handleFolderChange={handleFolderChange}
             handleChildChange={handleChildChange}

@@ -3,13 +3,17 @@ import { useDispatch, useSelector } from "react-redux";
 import Joi from "joi-browser";
 import { toast } from "react-toastify";
 import { Button } from "antd";
+
 import AdminNav from "../../../components/nav/AdminNav";
 import ParentInputs from "../../../components/forms/parent/ParentInputs";
+
+import { getCategories } from "../../../functions/category";
 import { updateParent } from "../../../functions/parent";
 import { updateChanges } from "../../../functions/estore";
 
 const initialState = {
   name: "",
+  category: "",
   itemsCount: 0,
   pageSize: 20,
   currentPage: 1,
@@ -24,18 +28,42 @@ const ParentUpdate = ({ history, match }) => {
   const [values, setValues] = useState(initialState);
   const [loading, setLoading] = useState(false);
 
-  const { user, parents, estore } = useSelector((state) => ({ ...state }));
+  const { user, categories, parents, estore } = useSelector((state) => ({ ...state }));
 
   useEffect(() => {
+    loadCategories();
     loadParent();
   }, [history, match, parents]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const loadCategories = () => {
+    if (typeof window !== undefined) {
+      if (!localStorage.getItem("categories")) {
+        setLoading(true);
+        getCategories().then((category) => {
+          dispatch({
+            type: "CATEGORY_LIST_XI",
+            payload: category.data.categories,
+          });
+          dispatch({
+              type: "PRODUCT_LIST_XIV",
+              payload: category.data.products,
+          });
+          setLoading(false);
+        });
+      }
+    }
+  };
 
   const loadParent = () => {
     const parentName = parents.filter(
       (parent) => parent.slug === match.params.slug
     );
     if (parentName[0]) {
-      setValues({ ...values, name: parentName[0].name });
+      setValues({
+        ...values,
+        name: parentName[0].name,
+        category: parentName[0].parent,
+      });
     } else {
       history.push("/admin/parent");
     }
@@ -59,10 +87,13 @@ const ParentUpdate = ({ history, match }) => {
 
     setLoading(true);
 
-    updateParent(match.params.slug, { name: values.name }, user.token)
+    updateParent(match.params.slug, { name: values.name, parent: values.category }, user.token)
       .then((res) => {
-        setLoading(false);
-        toast.success(`"${res.data.name}" is updated.`);
+        setValues({
+          ...values,
+          name: "",
+          category: "",
+        })
 
         parents.forEach((parent) => {
           if (parent.slug === match.params.slug) {
@@ -86,6 +117,8 @@ const ParentUpdate = ({ history, match }) => {
           });
         });
         history.push("/admin/parent");
+        setLoading(false);
+        toast.success(`"${res.data.name}" is updated.`);
       })
       .catch((error) => {
         if (error.response.status === 400 || 404)
@@ -110,6 +143,7 @@ const ParentUpdate = ({ history, match }) => {
             setValues={setValues}
             loading={loading}
             setLoading={setLoading}
+            categories={categories}
             edit={false}
           />
 

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import ProductProperty from "./ProductProperty";
-import { getCategorySubcats } from "../../../functions/category";
+import { getCategorySubcats, getCategoryParents } from "../../../functions/category";
 
 const ProductInputsChange = ({
   values,
@@ -10,6 +10,8 @@ const ProductInputsChange = ({
   loading,
   subcatOptions,
   setSubcatOptions,
+  parentOptions,
+  setParentOptions,
   updatingProduct,
   setSaveVariant,
 }) => {
@@ -64,6 +66,13 @@ const ProductInputsChange = ({
       });
     });
     setshowSubcat(true);
+    getCategoryParents(e.target.value).then((res) => {
+      setParentOptions(res.data);
+      dispatch({
+        type: "PARENT_LIST_XI",
+        payload: res.data,
+      });
+    });
   };
 
   const handleParentChange = (e) => {
@@ -110,6 +119,7 @@ const ProductInputsChange = ({
         handleParentChange={handleParentChange}
         subcatOptions={subcatOptions}
         showSubcat={showSubcat}
+        parentOptions={parentOptions}
         updatingProduct={updatingProduct}
         handleVariantDetails={handleVariantDetails}
         onFinish={onFinish}

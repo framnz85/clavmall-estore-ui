@@ -15,6 +15,7 @@ const ProductProperty = ({
   handleParentChange,
   subcatOptions,
   showSubcat,
+  parentOptions,
   updatingProduct,
   handleVariantDetails,
   onFinish,
@@ -31,7 +32,7 @@ const ProductProperty = ({
     parent,
   } = values;
 
-  const { categories, parents } = useSelector((state) => ({
+  const { categories } = useSelector((state) => ({
     ...state,
   }));
 
@@ -135,7 +136,7 @@ const ProductProperty = ({
       onChange: handleParentChange,
       value: parent,
       disabled: loading,
-      options: parents.map(
+      options: parentOptions.map(
         (parent) =>
           (parent = {
             ...parent,
