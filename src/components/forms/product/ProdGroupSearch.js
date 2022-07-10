@@ -11,7 +11,7 @@ const ProdGroupSearch = ({ values, setValues, groupSearchSubmit }) => {
     const { sortkeys, category, subcat, } = values;
     let dispatch = useDispatch();
 
-    const { categories, subcats, parents } = useSelector((state) => ({
+    const { categories, subcats, parents, user } = useSelector((state) => ({
         ...state,
     }));
 
