@@ -23,9 +23,10 @@ const ProductCreation = ({
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadCategories = () => {
-    if (typeof window !== undefined) {
-      if (!localStorage.getItem("categories")) {
-        getCategories().then((category) => {
+    console.log(1);
+    if (typeof window !== undefined) {console.log(2);
+      if (!localStorage.getItem("categories")) {console.log(3);
+        getCategories().then((category) => {console.log(category);
           dispatch({
             type: "CATEGORY_LIST_VI",
             payload: category.data.categories,
