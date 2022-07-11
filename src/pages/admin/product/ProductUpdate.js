@@ -11,7 +11,7 @@ import NotAvailableForms from "../../../components/common/NotAvailableForm";
 import NotAvailableCard from "../../../components/common/NotAvailableCard";
 
 import { getProduct, updateProduct } from "../../../functions/product";
-import { getCategorySubcats } from "../../../functions/category";
+import { getCategorySubcats, getCategoryParents } from "../../../functions/category";
 import { updateChanges } from "../../../functions/estore";
 
 const initialState = {
@@ -48,6 +48,7 @@ const ProductUpdate = ({ history, match }) => {
   const [values, setValues] = useState(initialState);
   const [loading, setLoading] = useState(false);
   const [subcatOptions, setSubcatOptions] = useState([]);
+  const [parentOptions, setParentOptions] = useState([]);
   const [saveVariant, setSaveVariant] = useState(true);
 
   useEffect(() => {
@@ -79,6 +80,13 @@ const ProductUpdate = ({ history, match }) => {
             payload: res.data,
           });
         });
+        getCategoryParents(prod.data.category._id).then((res) => {
+          setParentOptions(res.data);
+          dispatch({
+            type: "PARENT_LIST_XIII",
+            payload: res.data,
+          });
+        });
       });
     } else {
       const categoryId = prodValues[0].category._id || prodValues[0].category;
@@ -94,6 +102,13 @@ const ProductUpdate = ({ history, match }) => {
         setSubcatOptions(res.data);
         dispatch({
           type: "SUBCAT_LIST_VIII",
+          payload: res.data,
+        });
+      });
+      getCategoryParents(categoryId).then((res) => {
+        setParentOptions(res.data);
+        dispatch({
+          type: "PARENT_LIST_XIII",
           payload: res.data,
         });
       });
@@ -241,6 +256,8 @@ const ProductUpdate = ({ history, match }) => {
             handleSubmit={handleSubmit}
             subcatOptions={subcatOptions}
             setSubcatOptions={setSubcatOptions}
+            parentOptions={parentOptions}
+            setParentOptions={setParentOptions}
             setSaveVariant={setSaveVariant}
             updatingProduct={true}
           />

@@ -46,6 +46,8 @@ export const parentReducer = (state = initialState, action) => {
       return reducerExec(state, action.payload);
     case "PARENT_LIST_XII":
       return reducerExec(state, action.payload);
+    case "PARENT_LIST_XIII":
+      return reducerExec(state, action.payload);
     case "PARENT_REMOVE":
       return action.payload;
     default:

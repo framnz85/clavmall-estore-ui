@@ -13,8 +13,8 @@ import { auth, googleAuth } from "../../functions/firebase";
 const Login = ({ history }) => {
   let dispatch = useDispatch();
 
-  const [email, setEmail] = useState("clavmall.85@gmail.com");
-  const [password, setPassword] = useState("Ejccoc@1204");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [reloading, setReloading] = useState(0);
 
