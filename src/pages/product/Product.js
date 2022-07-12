@@ -81,9 +81,9 @@ const Product = ({ match }) => {
     setStar(newRating);
     productStar(name, newRating, user.token).then((res) => {
       const newProducts = products.map((product) =>
-        product._id === res.data._id ? res.data : product
+        product._id === res.data[0]._id ? res.data[0] : product
       );
-      setProduct(res.data);
+      setProduct(res.data[0]);
       dispatch({
         type: "PRODUCT_LIST_XVII",
         payload: newProducts,

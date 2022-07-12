@@ -1,8 +1,15 @@
 import React from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+
 import ShowingForms from '../../common/ShowingForms';
 
+import {
+    getCategorySubcats,
+    getCategoryParents
+} from "../../../functions/category";
+
 const ParGroupSearch = ({ values, setValues }) => {
+    let dispatch = useDispatch();
 
     const { categories } = useSelector((state) => ({
         ...state,
@@ -22,6 +29,18 @@ const ParGroupSearch = ({ values, setValues }) => {
             searchedCat: value,
             currentPage: 1,
         })
+        getCategorySubcats(value).then((res) => {
+            dispatch({
+                type: "SUBCAT_LIST_IV",
+                payload: res.data,
+            });
+        });
+        getCategoryParents(value).then((res) => {
+            dispatch({
+                type: "PARENT_LIST_XI",
+                payload: res.data,
+            });
+        });
     };
 
     const formProperty = [

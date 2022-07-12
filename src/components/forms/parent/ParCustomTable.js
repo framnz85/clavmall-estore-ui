@@ -33,26 +33,20 @@ const ParCustomTable = ({ values, setValues, loading, setLoading }) => {
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const loadCategories = () => {
-        if (typeof window !== undefined) {
-            if (!localStorage.getItem("categories")) {
-                setLoading(true);
-                getCategories(user.address ? user.address : {}).then((category) => {
-                    setValues({
-                        ...values,
-                        itemsCount: category.data.catComplete.length
-                    });
-                    dispatch({
-                        type: "CATEGORY_LIST_VII",
-                        payload: category.data.catComplete,
-                    });
-                    dispatch({
-                        type: "PRODUCT_LIST_VI",
-                        payload: category.data.products,
-                    });
-                    setLoading(false);
-                });
-            }
-        }
+        getCategories(user.address ? user.address : {}).then((category) => {
+            setValues({
+                ...values,
+                itemsCount: category.data.catComplete.length
+            });
+            dispatch({
+                type: "CATEGORY_LIST_VII",
+                payload: category.data.catComplete,
+            });
+            dispatch({
+                type: "PRODUCT_LIST_VI",
+                payload: category.data.products,
+            });
+        });
     };
 
     const loadParents = () => {

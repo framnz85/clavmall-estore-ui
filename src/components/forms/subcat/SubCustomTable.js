@@ -30,26 +30,20 @@ const SubCustomTable = ({ values, setValues, loading, setLoading }) => {
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const loadCategories = () => {
-        if (typeof window !== undefined) {
-            if (!localStorage.getItem("categories")) {
-                setLoading(true);
-                getCategories(user.address ? user.address : {}).then((category) => {
-                    setValues({
-                        ...values,
-                        itemsCount: category.data.catComplete.length
-                    });
-                    dispatch({
-                        type: "CATEGORY_LIST_VII",
-                        payload: category.data.catComplete,
-                    });
-                    dispatch({
-                        type: "PRODUCT_LIST_VI",
-                        payload: category.data.products,
-                    });
-                    setLoading(false);
-                });
-            }
-        }
+        getCategories(user.address ? user.address : {}).then((category) => {
+            setValues({
+                ...values,
+                itemsCount: category.data.catComplete.length
+            });
+            dispatch({
+                type: "CATEGORY_LIST_VII",
+                payload: category.data.catComplete,
+            });
+            dispatch({
+                type: "PRODUCT_LIST_VI",
+                payload: category.data.products,
+            });
+        });
     };
 
     const loadSubcats = () => {
@@ -157,16 +151,19 @@ const SubCustomTable = ({ values, setValues, loading, setLoading }) => {
                                 : 0
                     )
                     .slice(currentPage * pageSize - pageSize, currentPage * pageSize)
-                    .map((subcat) => (
-                        <CustomTable1
+                    .map((subcat) => 
+                        {
+                        const result = categories.length && categories.filter((c) => c._id === subcat.parent);
+                        return <CustomTable1
                             key={subcat._id}
                             data={subcat}
-                            subname={categories.length && categories.filter((c) => c._id === subcat.parent)[0].name}
+                            subname={result.length && result[0].name}
                             bgColor={estore.carouselColor}
                             handleRemove={handleRemove}
                             linkTo={`/admin/subcat/${subcat.slug}`}
                         />
-                    ))}
+                        }
+                    )}
 
             <Pagination
                 className="text-center pt-3"

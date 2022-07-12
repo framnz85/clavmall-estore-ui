@@ -27,7 +27,6 @@ const CatCustomTable = ({ values, setValues, loading, setLoading }) => {
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const loadCategories = () => {
-        setLoading(true);
         getCategories(user.address ? user.address : {}).then((category) => {
             setValues({
                 ...values,
@@ -41,7 +40,6 @@ const CatCustomTable = ({ values, setValues, loading, setLoading }) => {
                 type: "PRODUCT_LIST_III",
                 payload: category.data.products,
             });
-            setLoading(false);
         });
     };
 

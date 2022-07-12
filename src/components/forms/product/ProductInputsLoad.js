@@ -27,20 +27,16 @@ const ProductCreation = ({
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadCategories = () => {
-    if (typeof window !== undefined) {
-      if (!localStorage.getItem("categories")) {
-        getCategories(user.address ? user.address : {}).then((category) => {
-          dispatch({
-            type: "CATEGORY_LIST_VI",
-            payload: category.data.catComplete,
-          });
-          dispatch({
-            type: "PRODUCT_LIST_V",
-            payload: category.data.products,
-          });
-        });
-      }
-    }
+    getCategories(user.address ? user.address : {}).then((category) => {
+      dispatch({
+        type: "CATEGORY_LIST_VI",
+        payload: category.data.catComplete,
+      });
+      dispatch({
+        type: "PRODUCT_LIST_V",
+        payload: category.data.products,
+      });
+    });
   };
 
   return (
