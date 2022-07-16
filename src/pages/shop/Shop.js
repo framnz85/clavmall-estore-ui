@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { isMobile } from 'react-device-detect';
 
 import ShopMenu from "../../components/shop/ShopMenu";
 import ShopProduct from "../../components/shop/ShopProduct";
@@ -185,7 +186,7 @@ const Shop = () => {
             setSearch={setSearch}
           />
         </div>
-        <div className="col-md-10">
+        <div className="col-md-10" style={isMobile ? {margin: 0, padding: 0} : {}}>
           <h4 style={{ margin: "20px 0" }}>Products</h4>
 
           <ShopProduct

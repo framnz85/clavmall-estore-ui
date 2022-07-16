@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { Pagination } from "antd";
 import ProductCard from "../cards/ProductCard";
 import LoadingCard from "../cards/LoadingCard";
+import { isMobile } from 'react-device-detect';
 
 const NewArrival = () => {
   const itemPerPage = 10;
@@ -25,7 +26,7 @@ const NewArrival = () => {
         New Arrival
       </h4>
 
-      <div className="container">
+      <div className="container" style={isMobile ? {margin: "5px", padding: 0} : {}}>
         {values.length < 1 ? (
           <LoadingCard count={10} />
         ) : (
@@ -41,7 +42,7 @@ const NewArrival = () => {
                 <div
                   key={product._id}
                   className="col-m-2"
-                  style={{ margin: "0 10px 10px 0" }}
+                  style={{ margin: "0 5px 5px 0" }}
                 >
                   <ProductCard product={product} />
                 </div>

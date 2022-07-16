@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { Input } from "antd";
+import { isMobile } from 'react-device-detect';
 
 const { Search } = Input;
 
@@ -36,7 +37,7 @@ const SearchHead = () => {
       value={searchTxt}
       onChange={handleChange}
       onSearch={(value) => handleSubmit(value)}
-      style={{ width: "300px" }}
+      style={{ width: isMobile ? window.innerWidth-40 : "300px" }}
     />
   );
 };

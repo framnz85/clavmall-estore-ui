@@ -12,6 +12,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "bootstrap-material-design/dist/css/bootstrap-material-design.min.css";
 
 import Header from "./components/nav/Header";
+import TabBottom from "./components/nav/TabBottom";
 
 const Home = lazy(() => import("./pages/Home"));
 const Product = lazy(() => import("./pages/product/Product"));
@@ -275,6 +276,7 @@ const App = () => {
           <AdminRoute exact path="/admin/managehome" component={ManageHome} />
         </Switch>
       </Suspense>
+      <TabBottom />
     </>
   );
 };

@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { Card } from "antd";
 import NumberFormat from "react-number-format";
+import { isMobile } from 'react-device-detect';
 
 import noImage from "../../images/noimage.jpg";
 import showAverage from "../../functions/rating";
@@ -27,15 +28,15 @@ const ProductCard = ({ product, priceShow }) => {
         hoverable
         style={
           priceShow
-            ? { height: "323px", width: "213px" }
-            : { height: "210px", width: "213px" }
+            ? { height: "323px", width: isMobile ? "188px" : "213px" }
+            : { height: "210px", width: isMobile ? "188px" : "213px" }
         }
         cover={
           <img
             alt={title}
             src={images && images.length > 0 ? images[0].url : noImage}
             className="m-1"
-            style={{ height: "150px", width: "205px", objectFit: "cover" }}
+            style={{ height: "150px", width: isMobile ? "180px" : "205px", objectFit: "cover" }}
           />
         }
         actions={

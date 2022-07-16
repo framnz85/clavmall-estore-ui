@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { isMobile } from 'react-device-detect';
 
 import ProductCard from '../cards/ProductCard';
 
@@ -37,7 +38,7 @@ const ParentProducts = ({ product }) => {
     return ( 
         <div className="container bg-white mt-3 p-3">
             <div className="row">
-                <div className="col text-center pt-3 pb-3">
+                <div className="col text-center pt-3 pb-3" style={isMobile ? {margin: 0, padding: 0} : {}}>
                     <hr />
                     <h5>Other Variant</h5>
                     <hr />

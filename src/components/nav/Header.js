@@ -11,6 +11,7 @@ import {
   EnvironmentOutlined,
 } from "@ant-design/icons";
 import { useSelector } from "react-redux";
+import { BrowserView } from 'react-device-detect';
 
 import SearchHead from "./SearchHead";
 import LocationModal from "../modal/LocationModal";
@@ -49,7 +50,7 @@ const Header = () => {
       className="d-flex justify-content-between"
       style={menuStyle.mainContainer}
     >
-      <div className="d-flex flex-row">
+      <BrowserView className="d-flex flex-row">
         <div className="p-3 mr-3">
           <Link to="/" style={menuStyle.headerStyle}>
             <HomeOutlined /> Home
@@ -75,7 +76,7 @@ const Header = () => {
             </Badge>
           </Link>
         </div>
-      </div>
+      </BrowserView>
 
       <div className="d-flex justify-content-end">
 
@@ -83,36 +84,36 @@ const Header = () => {
           <SearchHead />
         </div>
 
-        {user.token && (
-          <>
-            <div className="p-3 mr-3">
-              <Link to={
-                  user && user.role === "admin"
-                    ? "/admin/dashboard"
-                  : user && user.role === "subscriber"
-                    ? "/user/orders"
-                    : ""
-                } style={menuStyle.headerStyle}>
-                <UserOutlined /> {user.name || (user.email && user.email.split("@")[0])}
-              </Link>
-            </div>
-          </>
-        )}
+          {user.token && (
+            <>
+              <BrowserView className="p-3 mr-3">
+                <Link to={
+                    user && user.role === "admin"
+                      ? "/admin/dashboard"
+                    : user && user.role === "subscriber"
+                      ? "/user/orders"
+                      : ""
+                  } style={menuStyle.headerStyle}>
+                  <UserOutlined /> {user.name || (user.email && user.email.split("@")[0])}
+                </Link>
+              </BrowserView>
+            </>
+          )}
 
-        {!user.token && (
-          <>
-            <div className="p-3 mr-3">
-              <Link to="/login" style={menuStyle.headerStyle}>
-                <LoginOutlined /> Login
-              </Link>
-            </div>
-            <div className="p-3 mr-3">
-              <Link to="/register" style={menuStyle.headerStyle}>
-                <UserAddOutlined /> Register
-              </Link>
-            </div>
-          </>
-        )}
+          {!user.token && (
+            <>
+              <BrowserView className="p-3 mr-3">
+                <Link to="/login" style={menuStyle.headerStyle}>
+                  <LoginOutlined /> Login
+                </Link>
+              </BrowserView>
+              <BrowserView className="p-3 mr-3">
+                <Link to="/register" style={menuStyle.headerStyle}>
+                  <UserAddOutlined /> Register
+                </Link>
+              </BrowserView>
+            </>
+          )}
         
       </div>
 

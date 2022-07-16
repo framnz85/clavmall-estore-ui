@@ -3,12 +3,13 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { Carousel } from "antd";
 import Jumbotron from "../../components/cards/Jumbotron";
+import { isMobile } from 'react-device-detect';
 
 const HomeCarousel = () => {
   let { estore } = useSelector((state) => ({ ...state }));
 
   const contentStyle = {
-    height: "220px",
+    height: isMobile ? "" : "220px",
     lineHeight: "160px",
     textAlign: "center",
     background: "#ffffff",
@@ -20,14 +21,14 @@ const HomeCarousel = () => {
         className="jumbotron m-0 pt-4 pb-2"
         style={{ backgroundColor: "#ffffff" }}
       >
-        <div className="container">
+        <div className="container" style={isMobile ? {margin: 0, padding: 0} : {}}>
           <Carousel autoplay>
             {estore.carouselImages
               .filter(image => image.activation)
               .map((image) => (
                 <Link key={image.public_id} to={image.carouselURL}>
                   <h3 style={contentStyle}>
-                    <img alt="Carousel" src={image.url} />
+                    <img alt="Carousel" src={image.url} style={isMobile ? {width: window.innerWidth} : {}} />
                   </h3>
                 </Link>
               ))}

@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { Button } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
+import { isMobile } from 'react-device-detect';
 
 import ProductCard from "../../components/cards/ProductCard";
 import LoadingCard from "../../components/cards/LoadingCard";
@@ -88,7 +89,7 @@ const ItemsForYou = () => {
         Items For You
       </h4>
 
-      <div className="container">
+      <div className="container" style={isMobile ? {margin: "5px", padding: 0} : {}}>
         {loading ? (
           <LoadingCard count={page * 20} />
         ) : (
@@ -98,7 +99,7 @@ const ItemsForYou = () => {
                 <div
                   key={product._id}
                   className="col-m-2"
-                  style={{ margin: "0 10px 10px 0" }}
+                  style={{ margin: "0 5px 5px 0" }}
                 >
                   <ProductCard product={product} priceShow={true} />
                 </div>
