@@ -34,7 +34,6 @@ const TabBottom = () => {
                 history.push('/user/orders');
                 break;
             default:
-                history.push('/')
                 break;
         }
     }, [activeTabs, history]);
