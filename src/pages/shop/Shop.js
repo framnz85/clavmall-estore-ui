@@ -24,7 +24,7 @@ const initialState = {
 const Shop = () => {
   let dispatch = useDispatch();
 
-  const { inputs, products, user } = useSelector(
+  const { inputs, products, user, estore } = useSelector(
     (state) => ({
       ...state,
     })
@@ -45,6 +45,7 @@ const Shop = () => {
   } = search;
 
   useEffect(() => {
+    document.title = "Shop at " + estore.name;
     if (
       inputs.searchText.length < 1 &&
       price.length === 0 &&

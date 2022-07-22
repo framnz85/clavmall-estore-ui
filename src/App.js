@@ -88,6 +88,8 @@ const App = () => {
           localStorage.setItem("productChange", estore.data[0].productChange);
           localStorage.setItem("locationChange", estore.data[0].locationChange);
           localStorage.setItem("estoreChange", estore.data[0].estoreChange);
+
+          document.title = estore.data[0].name
         });
       } else {
         getEstoreChanges(process.env.REACT_APP_ESTORE_ID).then((estore) => {
@@ -148,6 +150,8 @@ const App = () => {
             loadEstoreInfo();
           }
         });
+
+        document.title = JSON.parse(localStorage.getItem("estore")).name
       }
     }
   };

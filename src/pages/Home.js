@@ -22,6 +22,8 @@ const Home = () => {
     showBestSeller,
   } = estore;
 
+  document.title = estore.name
+
   return (
     <>
       {!estore.name && <LoadingOutlined />}

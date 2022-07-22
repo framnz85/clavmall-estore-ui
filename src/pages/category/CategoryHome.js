@@ -56,6 +56,7 @@ const CategoryHome = ({ match }) => {
 
     if (thisCategory[0]) {
       setCategory(thisCategory[0]);
+      document.title = thisCategory[0].name + " | " + estore.name;
 
       const productCategory = products.filter(
         (product) => product.category._id === thisCategory[0]._id

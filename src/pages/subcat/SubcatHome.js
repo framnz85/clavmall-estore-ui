@@ -49,9 +49,10 @@ const SubcatHome = ({ match }) => {
 
     if (thisSubcat[0]) {
       setSubcat(thisSubcat[0]);
+      document.title = thisSubcat[0].name + " | " + estore.name;
 
       const productSubcat = products.filter((product) =>
-        product.subcats.map((subcat) => subcat._id).includes(thisSubcat[0]._id)
+        product.subcats.map((subcat) => subcat && subcat._id).includes(thisSubcat[0]._id)
       );
 
       if (productSubcat.length < 20) {
@@ -70,7 +71,7 @@ const SubcatHome = ({ match }) => {
           setValues(
             unique.all.filter((product) =>
               product.subcats
-                .map((subcat) => subcat._id)
+                .map((subcat) => subcat && subcat._id)
                 .includes(thisSubcat[0]._id)
             )
           );
@@ -83,7 +84,7 @@ const SubcatHome = ({ match }) => {
         setValues(
           products.filter((product) =>
             product.subcats
-              .map((subcat) => subcat._id)
+              .map((subcat) => subcat && subcat._id)
               .includes(thisSubcat[0]._id)
           )
         );

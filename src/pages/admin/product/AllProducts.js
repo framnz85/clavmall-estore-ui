@@ -145,6 +145,7 @@ const AllProducts = () => {
             values={values}
             setValues={setValues}
             loading={loading}
+            setLoading={setLoading}
           />
         </div>
       </div>

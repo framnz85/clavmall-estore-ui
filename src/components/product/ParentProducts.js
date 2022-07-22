@@ -20,7 +20,7 @@ const ParentProducts = ({ product }) => {
 
     const loadParentProducts = (prodId, parId) => {
         const parProducts = products.filter(
-            (product) => product.parent._id === parId && product.slug !== slug
+            (product) => product.parent && product.parent._id === parId && product.slug !== slug
         );
         if (parProducts.length < 60) {
             getParent(prodId).then((res) => {

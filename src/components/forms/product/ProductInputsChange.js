@@ -17,7 +17,7 @@ const ProductInputsChange = ({
 }) => {
   let dispatch = useDispatch();
 
-  const { supplierPrice, markup } = values;
+  const { supplierPrice, markup, markuptype } = values;
 
   const [showSubcat, setshowSubcat] = useState(false);
 
@@ -27,7 +27,9 @@ const ProductInputsChange = ({
 
   const handleSupplierPriceChange = (e) => {
     e.preventDefault();
-    const finalPrice = e.target.value * (1 + markup / 100);
+    const finalPrice = markuptype === "%"
+      ? e.target.value * (1 + markup / 100)
+      : parseFloat(e.target.value) + parseFloat(markup);
     setValues({
       ...values,
       supplierPrice: e.target.value,
@@ -37,7 +39,9 @@ const ProductInputsChange = ({
 
   const handleMarkupChange = (e) => {
     e.preventDefault();
-    const finalPrice = supplierPrice * (1 + e.target.value / 100);
+    const finalPrice = markuptype === "%"
+      ? supplierPrice * (1 + e.target.value / 100)
+      : parseFloat(supplierPrice) + parseFloat(e.target.value);
     setValues({
       ...values,
       markup: e.target.value,
@@ -45,9 +49,23 @@ const ProductInputsChange = ({
     });
   };
 
+  const handleMarkupTypeChange = (e) => {
+    e.preventDefault();
+    const finalPrice = e.target.value === "%"
+      ? supplierPrice * (1 + markup / 100)
+      : parseFloat(supplierPrice) + parseFloat(markup);
+    setValues({
+      ...values,
+      markuptype: e.target.value,
+      price: parseFloat(finalPrice).toFixed(2),
+    });
+  }
+
   const handlePriceChange = (e) => {
     e.preventDefault();
-    const supPrice = (100 * e.target.value) / (100 + parseFloat(markup));
+    const supPrice = markuptype === "%"
+      ? (100 * e.target.value) / (100 + parseFloat(markup))
+      : parseFloat(e.target.value) - parseFloat(markup);
     setValues({
       ...values,
       supplierPrice: parseFloat(supPrice).toFixed(2),
@@ -114,6 +132,7 @@ const ProductInputsChange = ({
         handleChange={handleChange}
         handleSupplierPriceChange={handleSupplierPriceChange}
         handleMarkupChange={handleMarkupChange}
+        handleMarkupTypeChange={handleMarkupTypeChange}
         handlePriceChange={handlePriceChange}
         handleCategoryChange={handleCategoryChange}
         handleParentChange={handleParentChange}

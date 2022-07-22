@@ -13,11 +13,12 @@ const Register = ({ history }) => {
   const [succeed, setSucceed] = useState("");
   const [loading, setLoading] = useState(false);
 
-  let { user } = useSelector((state) => ({ ...state }));
+  let { user, estore } = useSelector((state) => ({ ...state }));
 
   useEffect(() => {
+    document.title = "Register | " + estore.name;
     if (user && user.token) history.push("/");
-  }, [user, history]);
+  }, [user, history]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const schema = {
     email: Joi.string().email().min(3).max(255).required(),

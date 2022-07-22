@@ -19,6 +19,7 @@ const initialState = {
   description: "",
   supplierPrice: "",
   markup: "",
+  markuptype: "%",
   price: "",
   category: "",
   subcats: [],
@@ -70,7 +71,7 @@ const ProductUpdate = ({ history, match }) => {
           ...values,
           ...prod.data,
           category: prod.data.category._id,
-          subcats: prod.data.subcats.map((sub) => sub._id),
+          subcats: prod.data.subcats.map((sub) => sub && sub._id),
           parent: prod.data.parent._id,
         });
         getCategorySubcats(prod.data.category._id).then((res) => {
@@ -122,6 +123,7 @@ const ProductUpdate = ({ history, match }) => {
     description: Joi.string().max(2000),
     supplierPrice: Joi.number(),
     markup: Joi.number(),
+    markuptype: Joi.string(),
     price: Joi.number().required(),
     category: Joi.string().required(),
     subcats: Joi.array(),

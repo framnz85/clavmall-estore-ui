@@ -82,3 +82,14 @@ export const removeFileImage = async (public_id, estore, authToken) => {
     }
   );
 };
+
+export const checkImageUser = async (public_id, authToken) => {  
+  return await axios.get(`${process.env.REACT_APP_API}/admin/check-image-user/${public_id}`,
+    {
+      headers: {
+        authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
+      },
+    }
+  );
+};

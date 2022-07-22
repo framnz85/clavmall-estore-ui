@@ -57,6 +57,7 @@ const Checkout = ({ history }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    document.title = "Checkout at " + estore.name;
     getUserCart(user.token, country.countryCode, addiv3._id).then((res) => {
       setProducts(res.data.products);
       setCartDefault({

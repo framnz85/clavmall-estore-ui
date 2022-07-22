@@ -26,12 +26,13 @@ const Payment = ({ history }) => {
   const [payName, setPayName] = useState("");
   const [succeeded, setSucceeded] = useState(false);
   
-  const { inputs } = useSelector((state) => ({
+  const { inputs, estore } = useSelector((state) => ({
     ...state,
   }));
   const { payopt } = inputs;
 
   useEffect(() => {
+    document.title = "Shop Online at " + estore.name;
     if (!payopt) history.push("/checkout");
     loadAllMyPayment();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps

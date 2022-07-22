@@ -45,11 +45,11 @@ const ProductListItems = ({ product, setVariant }) => {
           Sub Category
           {subcats.map((sub) => (
             <Link
-              key={sub._id}
-              to={`/subcats/${sub.slug}`}
+              key={sub && sub._id}
+              to={`/subcats/${sub && sub.slug}`}
               className="label label-default label-pill pull-xs-right"
             >
-              {sub.name}
+              {sub && sub.name}
             </Link>
           ))}
         </li>
@@ -68,13 +68,13 @@ const ProductListItems = ({ product, setVariant }) => {
       <li className="list-group-item">
         Available
         <span className="label label-default label-pill pull-xs-right">
-          {quantity}
+          {quantity && quantity.toFixed(2)}
         </span>
       </li>
       <li className="list-group-item">
         Sold
         <span className="label label-default label-pill pull-xs-right">
-          {sold}
+          {sold && sold.toFixed(2)}
         </span>
       </li>
       {variants.length && (

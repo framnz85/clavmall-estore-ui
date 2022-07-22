@@ -20,7 +20,7 @@ const RelatedProducts = ({ product }) => {
 
     const loadRelatedProducts = (prodId, catId) => {
         const relProducts = products.filter(
-            (product) => product.category._id === catId && product.slug !== slug
+            (product) => product.category && product.category._id === catId && product.slug !== slug
         );
         if (relProducts.length < 60) {
             getRelated(prodId).then((res) => {

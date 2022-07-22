@@ -22,7 +22,7 @@ const cartInitials = {
 
 const Cart = ({ history }) => {
   let dispatch = useDispatch();
-  const { inputs, user } = useSelector((state) => ({ ...state }));
+  const { inputs, user, estore } = useSelector((state) => ({ ...state }));
   const { cart, couponAmount } = inputs;
 
   let { minorder } = user.address ? user.address.addiv3 : {};
@@ -30,6 +30,7 @@ const Cart = ({ history }) => {
   const [cartCalculation, setCartCalculation] = useState(cartInitials);
   
   useEffect(() => {
+    document.title = "Fill Cart at " + estore.name;
     calculateCart();
   }, [cart, user]); // eslint-disable-line react-hooks/exhaustive-deps
   

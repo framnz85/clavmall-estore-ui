@@ -10,6 +10,7 @@ const ProductProperty = ({
   handleChange,
   handleSupplierPriceChange,
   handleMarkupChange,
+  handleMarkupTypeChange,
   handlePriceChange,
   handleCategoryChange,
   handleParentChange,
@@ -26,17 +27,20 @@ const ProductProperty = ({
     description,
     supplierPrice,
     markup,
+    markuptype,
     price,
     category,
     subcats,
     parent,
   } = values;
 
-  const { categories } = useSelector((state) => ({
+  const { categories, estore } = useSelector((state) => ({
     ...state,
   }));
 
   const [showInput, setShowInput] = useState(true);
+
+  const plainOptions = ["%", estore.country && estore.country.currency];
 
   const formProperty = [
     {
@@ -73,10 +77,20 @@ const ProductProperty = ({
     {
       type: "number",
       name: "markup",
-      label: "Markup Percentage (%)",
+      label: "Markup",
       onChange: handleMarkupChange,
       value: markup,
-      placeholder: "0%",
+      radio: {
+        label: "In: ",
+        options: plainOptions,
+        onChange: (e) => {
+          setValues({
+            ...values, markuptype: e.target.value
+          });
+          handleMarkupTypeChange(e);
+        },
+        value: markuptype
+      },
       disabled: loading,
       show: true,
       edit,

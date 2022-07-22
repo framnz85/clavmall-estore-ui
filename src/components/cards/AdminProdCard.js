@@ -1,9 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EyeOutlined, EditOutlined, DeleteOutlined, CopyOutlined } from "@ant-design/icons";
 import noImage from "../../images/noimage.jpg";
 
-const AllProductsCard = ({ product, handleRemove, canEdit }) => {
+const AllProductsCard = ({ product, handleDuplicate, handleRemove, canEdit }) => {
     const { _id, title, slug, price, variants, images, activate } = product;
 
     return (
@@ -23,9 +23,13 @@ const AllProductsCard = ({ product, handleRemove, canEdit }) => {
                     {canEdit
                         ? (
                             <>
+                                <Link to={`/product/${slug}`}>
+                                    <EyeOutlined className="text-secondary" />
+                                </Link> {" "}
                                 <Link to={`/admin/product/${slug}`}>
                                     <EditOutlined className="text-secondary" />
                                 </Link> {" "}
+                                <CopyOutlined onClick={() => handleDuplicate(product)} /> {" "}
                                 <DeleteOutlined
                                     className="text-danger"
                                     onClick={() => handleRemove(slug, title, images)}

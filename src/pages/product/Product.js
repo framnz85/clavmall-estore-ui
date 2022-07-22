@@ -50,6 +50,7 @@ const Product = ({ match }) => {
   const loadSingleProduct = () => {
     const thisProduct = products.filter((product) => product.slug === slug);
     if (thisProduct[0]) {
+      document.title = thisProduct[0].title;
       setProduct({ ...initialState, ...thisProduct[0] });
       loadRatingDefault(thisProduct[0]);
       if (!filterProductsAddress(thisProduct, user.address).length) {
@@ -57,6 +58,7 @@ const Product = ({ match }) => {
       }
     } else {
       getProduct(slug).then((res) => {
+        document.title = res.data.title;
         setProduct({ ...initialState, ...res.data });
         loadRatingDefault(res.data);
         if (!filterProductsAddress([res.data], user.address).length) {

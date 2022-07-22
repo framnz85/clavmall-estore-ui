@@ -51,9 +51,10 @@ const ParentHome = ({ match }) => {
 
     if (thisParent[0]) {
       setParent(thisParent[0]);
+      document.title = thisParent[0].name + " | " + estore.name;
 
       const productParent = products.filter(
-        (product) => product.parent._id === thisParent[0]._id
+        (product) => product.parent && product.parent._id === thisParent[0]._id
       );
 
       if (productParent.length < 20) {
@@ -64,7 +65,7 @@ const ParentHome = ({ match }) => {
         ).then((product) => {
           const unique = getUnique(products, product.data);
           setValues(
-            unique.all.filter((product) => product.parent._id === thisParent[0]._id)
+            unique.all.filter((product) => product.parent && product.parent._id === thisParent[0]._id)
           );
           dispatch({
             type: "PRODUCT_LIST_XVI",
@@ -73,7 +74,7 @@ const ParentHome = ({ match }) => {
         });
       } else {
         setValues(
-          products.filter((product) => product.parent._id === thisParent[0]._id)
+          products.filter((product) => product.parent && product.parent._id === thisParent[0]._id)
         );
       }
     }

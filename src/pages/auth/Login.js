@@ -18,9 +18,10 @@ const Login = ({ history }) => {
   const [loading, setLoading] = useState(false);
   const [reloading, setReloading] = useState(0);
 
-  let { user: userExist } = useSelector((state) => ({ ...state }));
+  let { user: userExist, estore } = useSelector((state) => ({ ...state }));
 
   useEffect(() => {
+    document.title = "Login | " + estore.name;
     let intended = history.location.state;
     if (intended) {
       return;
@@ -36,7 +37,7 @@ const Login = ({ history }) => {
         return () => interval;
       }
     }
-  }, [userExist, history]);
+  }, [userExist, history]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const roleBasedRedirect = (res) => {
     let intended = history.location.state;
