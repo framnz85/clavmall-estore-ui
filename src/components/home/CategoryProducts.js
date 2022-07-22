@@ -100,6 +100,7 @@ const CategoryProducts = ({ others }) => {
       ) : (
         <div style={{ marginLeft: "2px" }}>
           {categories
+            .filter(category => category._id !== "all")
             .sort(() => Math.random() - 0.5)
             .slice(0, limit)
             .map((category, index) => {

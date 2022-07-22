@@ -106,7 +106,7 @@ const RegisterComplete = ({ history }) => {
         });
       }
     } else {
-      toast.error("Link to complete registration should be open on the same computer and browser where you have entered it for registration");
+      toast.error("The link to complete registration may have expired or it should be open on the same computer and browser where you have entered it for registration. ");
     }
   };
 

@@ -102,8 +102,10 @@ const SubCustomTable = ({ values, setValues, loading, setLoading }) => {
                         });
                     })
                     .catch((error) => {
-                        if (error.response.status === 400) toast.error(error.response.data);
-                        else toast.error(error.message);
+                        if ([400, 401, 404].includes(error.response.status))
+                            toast.error(error.response.data);
+                        else
+                            toast.error(error.message);
                         setLoading(false);
                     });
             },
@@ -153,11 +155,11 @@ const SubCustomTable = ({ values, setValues, loading, setLoading }) => {
                     .slice(currentPage * pageSize - pageSize, currentPage * pageSize)
                     .map((subcat) => 
                         {
-                        const result = categories.length && categories.filter((c) => c._id === subcat.parent);
+                        const category = categories.length && categories.filter((c) => c._id === subcat.parent);
                         return <CustomTable1
                             key={subcat._id}
                             data={subcat}
-                            subname={result.length && result[0].name}
+                            subname={category[0] && category[0].name}
                             bgColor={estore.carouselColor}
                             handleRemove={handleRemove}
                             linkTo={`/admin/subcat/${subcat.slug}`}

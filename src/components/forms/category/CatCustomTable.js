@@ -77,8 +77,10 @@ const CatCustomTable = ({ values, setValues, loading, setLoading }) => {
                         toast.error(`"${res.data.name}" deleted.`);
                     })
                     .catch((error) => {
-                        if (error.response.status === 400) toast.error(error.response.data);
-                        else toast.error(error.message);
+                        if ([400, 401, 404].includes(error.response.status))
+                            toast.error(error.response.data);
+                        else
+                            toast.error(error.message);
                         setLoading(false);
                     });
             },

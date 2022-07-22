@@ -34,6 +34,7 @@ const SubcatList = ({ others }) => {
 
   const showSubcats = () =>
     values
+      .filter(subcat => subcat._id !== "all")
       .sort(() => Math.random() - 0.5)
       .slice(0, 36)
       .map((s) => (

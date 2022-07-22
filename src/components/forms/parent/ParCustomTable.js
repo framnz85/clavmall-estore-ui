@@ -105,8 +105,10 @@ const ParCustomTable = ({ values, setValues, loading, setLoading }) => {
                         });
                     })
                     .catch((error) => {
-                        if (error.response.status === 400) toast.error(error.response.data);
-                        else toast.error(error.message);
+                        if ([400, 401, 404].includes(error.response.status))
+                            toast.error(error.response.data);
+                        else
+                            toast.error(error.message);
                         setLoading(false);
                     });
             },
@@ -154,16 +156,17 @@ const ParCustomTable = ({ values, setValues, loading, setLoading }) => {
                                 : 0
                     )
                     .slice(currentPage * pageSize - pageSize, currentPage * pageSize)
-                    .map((parent) => (
-                        <CustomTable1
+                    .map((parent) => {
+                        const category = categories.length && categories.filter((c) => c._id === parent.parent);
+                        return <CustomTable1
                             key={parent._id}
                             data={parent}
-                            subname={categories.length && categories.filter((c) => c._id === parent.parent)[0].name}
+                            subname={category[0] && category[0].name}
                             bgColor={estore.carouselColor}
                             handleRemove={handleRemove}
                             linkTo={`/admin/parent/${parent.slug}`}
                         />
-                    ))}
+                    })}
 
             <Pagination
                 className="text-center pt-3"

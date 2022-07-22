@@ -4,8 +4,7 @@ import { SearchOutlined } from "@ant-design/icons";
 
 import ShowingForms from '../../common/ShowingForms';
 
-import { getCategories, getCategorySubcats } from '../../../functions/category';
-import { getParents } from "../../../functions/parent";
+import { getCategories, getCategorySubcats, getCategoryParents } from '../../../functions/category';
 
 const ProdGroupSearch = ({ values, setValues, groupSearchSubmit }) => {
     const { sortkeys, category, subcat, } = values;
@@ -17,37 +16,19 @@ const ProdGroupSearch = ({ values, setValues, groupSearchSubmit }) => {
 
     useEffect(() => {
         loadCategories();
-        loadParents();
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const loadCategories = () => {
-        if (typeof window !== undefined) {
-            if (!localStorage.getItem("categories")) {
-                getCategories(user.address ? user.address : {}).then((category) => {
-                    dispatch({
-                        type: "CATEGORY_LIST_V",
-                        payload: category.data.categories,
-                    });
-                    dispatch({
-                        type: "PRODUCT_LIST_IV",
-                        payload: category.data.products,
-                    });
-                });
-            }
-        }
-    };
-
-    const loadParents = () => {
-        if (typeof window !== undefined) {
-            if (!localStorage.getItem("parents")) {
-                getParents().then((parent) => {
-                    dispatch({
-                        type: "PARENT_LIST_IV",
-                        payload: parent.data,
-                    });
-                });
-            }
-        }
+        getCategories(user.address ? user.address : {}).then((category) => {
+            dispatch({
+                type: "CATEGORY_LIST_V",
+                payload: category.data.catComplete,
+            });
+            dispatch({
+                type: "PRODUCT_LIST_IV",
+                payload: category.data.products,
+            });
+        });
     };
 
     const handleSortkeyChange = (value) => {
@@ -85,6 +66,23 @@ const ProdGroupSearch = ({ values, setValues, groupSearchSubmit }) => {
                     payload: res.data,
                 });
             });
+
+        const allSubcatExist = subcats.filter((subcat) => subcat._id === "all" && subcat.parent === value);
+        if(allSubcatExist.length < 1)
+            subcats.unshift({ _id: "all", name: "- All Sub-Category -", parent: value });
+        
+        const parentExist = parents.filter((parent) => parent.parent === value);
+        if (parentExist.length < 1)
+            getCategoryParents(value).then((res) => {
+                dispatch({
+                    type: "PARENT_LIST_IV",
+                    payload: res.data,
+                });
+            });
+
+        const allParentExist = parents.filter((parent) => parent._id === "all" && parent.parent === value);
+        if(allParentExist.length < 1)
+            parents.unshift({ _id: "all", name: "- All Parents -", parent: value });
     }
 
     const handleSubcatChange = (value) => {
@@ -112,6 +110,9 @@ const ProdGroupSearch = ({ values, setValues, groupSearchSubmit }) => {
             },
         });
     }
+
+    let forCatOption = [...categories]
+    forCatOption.unshift({ _id: "all", name: "- All Category -" });
 
     const formProperty = [
         {
@@ -145,12 +146,12 @@ const ProdGroupSearch = ({ values, setValues, groupSearchSubmit }) => {
             onChange: handleCategoryChange,
             defaultValue: "- All Category -",
             disabled: false,
-            options: categories.map(
+            options: forCatOption.map(
                 (category) =>
                 (category = {
                     ...category,
                     key: category._id,
-                    value: category._id,
+                    value: category._id === "all" ? "" : category._id,
                     text: category.name,
                 })
             ),
@@ -171,7 +172,7 @@ const ProdGroupSearch = ({ values, setValues, groupSearchSubmit }) => {
                 (subcat = {
                     ...subcat,
                     key: subcat._id,
-                    value: subcat._id,
+                    value: subcat._id === "all" ? "" : subcat._id,
                     text: subcat.name,
                 })
             ),
@@ -187,12 +188,12 @@ const ProdGroupSearch = ({ values, setValues, groupSearchSubmit }) => {
             onChange: handleParentChange,
             defaultValue: "- All Parent -",
             disabled: false,
-            options: parents.map(
+            options: parents.filter(parent => parent.parent === category).map(
                 (parent) =>
                 (parent = {
                     ...parent,
                     key: parent._id,
-                    value: parent._id,
+                    value: parent._id === "all" ? "" : parent._id,
                     text: parent.name,
                 })
             ),

@@ -32,8 +32,9 @@ const ParentList = () => {
     }
   };
 
-  const showSubcats = () =>
+  const showParents = () =>
     values
+      .filter(parent => parent._id !== "all")
       .sort(() => Math.random() - 0.5)
       .slice(0, 36)
       .map((p) => (
@@ -55,7 +56,7 @@ const ParentList = () => {
             <LoadingOutlined />
           </h4>
         ) : (
-          showSubcats()
+          showParents()
         )}
       </div>
     </div>

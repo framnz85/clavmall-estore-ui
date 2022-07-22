@@ -38,6 +38,7 @@ const MenuContent = ({
 
   const showCategories = (maxShow) =>
     categoryList
+      .filter(category => category._id !== "all")
       .slice(0, maxShow ? maxShow : categoryList.length)
       .map((cat) => (
         <Checkbox
@@ -55,36 +56,42 @@ const MenuContent = ({
       ));
 
   const showSubcats = (maxShow) => 
-    subcatList.slice(0, maxShow ? maxShow : subcatList.length).map((sub) => (
-      <Checkbox
-        onChange={handleSubcatCheck}
-        key={sub._id}
-        className="m-0 p-0 mb-1"
-        value={sub._id}
-        name="subcategory"
-        checked={subcatIds.includes(sub._id)}
-      >
-        {sub.name.length > 14
-          ? sub.name.slice(0, 14) + "..."
-          : sub.name + Array(10).fill("\xa0").join("")}
-      </Checkbox>
-    ));
+    subcatList
+      .filter(subcat => subcat._id !== "all")
+      .slice(0, maxShow ? maxShow : subcatList.length)
+      .map((sub) => (
+        <Checkbox
+          onChange={handleSubcatCheck}
+          key={sub._id}
+          className="m-0 p-0 mb-1"
+          value={sub._id}
+          name="subcategory"
+          checked={subcatIds.includes(sub._id)}
+        >
+          {sub.name.length > 14
+            ? sub.name.slice(0, 14) + "..."
+            : sub.name + Array(10).fill("\xa0").join("")}
+        </Checkbox>
+      ));
 
   const showParents = (maxShow) =>
-    parentList.slice(0, maxShow ? maxShow : parentList.length).map((par) => (
-      <Checkbox
-        onChange={handleParentCheck}
-        key={par._id}
-        className="m-0 p-0 mb-1"
-        value={par._id}
-        name="parent"
-        checked={parentIds.includes(par._id)}
-      >
-        {par.name.length > 14
-          ? par.name.slice(0, 14) + "..."
-          : par.name + Array(10).fill("\xa0").join("")}
-      </Checkbox>
-    ));
+    parentList
+      .filter(parent => parent._id !== "all")
+      .slice(0, maxShow ? maxShow : parentList.length)
+      .map((par) => (
+        <Checkbox
+          onChange={handleParentCheck}
+          key={par._id}
+          className="m-0 p-0 mb-1"
+          value={par._id}
+          name="parent"
+          checked={parentIds.includes(par._id)}
+        >
+          {par.name.length > 14
+            ? par.name.slice(0, 14) + "..."
+            : par.name + Array(10).fill("\xa0").join("")}
+        </Checkbox>
+      ));
   
   return (
     <Menu
