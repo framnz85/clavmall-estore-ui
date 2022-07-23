@@ -25,33 +25,36 @@ const SideDrawer = ({drawer, setDrawer}) => {
       visible={drawer}
     >
       {cart &&
-        cart.map((p) => (
-          <div key={p._id + p.variant} className="row">
-            {p.images[0] ? (
-              <>
-                <img
-                  src={p.images[0].url}
-                  style={imageStyle}
-                  alt={p.images[0].public_id}
-                />
-                <p className="text-center p-1" style={{ width: "100%" }}>
-                  {p.title.length > 28 ? p.title.slice(0, 28) : p.title} <br />{" "}
-                  ({p.variants.filter((v) => v._id === p.variant)[0].name}) x{" "}
-                  {p.count}
-                </p>
-              </>
-            ) : (
-              <>
-                <img src={noImage} style={imageStyle} alt="eStore" />
-                <p className="text-center p-1" style={{ width: "100%" }}>
-                  {p.title.length > 28 ? p.title.slice(0, 28) : p.title} <br />{" "}
-                  ({p.variants.filter((v) => v._id === p.variant)[0].name}) x{" "}
-                  {p.count}
-                </p>
-              </>
-            )}
-          </div>
-        ))}
+        cart.map((p) => {
+          const pVariant = p.variants.filter((v) => v._id === p.variant);
+          return (
+            <div key={p._id + p.variant} className="row">
+              {p.images[0] ? (
+                <>
+                  <img
+                    src={p.images[0].url}
+                    style={imageStyle}
+                    alt={p.images[0].public_id}
+                  />
+                  <p className="text-center p-1" style={{ width: "100%" }}>
+                    {p.title.length > 28 ? p.title.slice(0, 28) : p.title} <br />{" "}
+                    ({pVariant[0] && pVariant[0].name}) x{" "}
+                    {p.count}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <img src={noImage} style={imageStyle} alt="eStore" />
+                  <p className="text-center p-1" style={{ width: "100%" }}>
+                    {p.title.length > 28 ? p.title.slice(0, 28) : p.title} <br />{" "}
+                    ({pVariant[0] && pVariant[0].name}) x{" "}
+                    {p.count}
+                  </p>
+                </>
+              )}
+            </div>
+          )
+        })}
 
       <Link to="/cart">
         <Button

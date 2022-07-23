@@ -1,16 +1,43 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { Radio } from "antd";
 import NumberFormat from "react-number-format";
 
 const ProductListItems = ({ product, setVariant }) => {
-  const { price, category, subcats, parent, variants, quantity, sold } =
+  const history = useHistory();
+  const { slug, price, category, subcats, parent, variants, quantity, sold } =
     product;
   
-  const { estore } = useSelector((state) => ({
+  const { estore, products } = useSelector((state) => ({
       ...state,
   }));
+
+  const showRelativeVariant = () => {
+    let otherVariant = []
+    const parProducts = products.filter(
+      (product) => product.parent && product.parent._id === parent._id && product.slug !== slug
+    );
+    parProducts.map(product => {
+      const parVariants = product && product.variants.map(variant => {
+        return { ...variant, title: product.title, slug: product.slug }
+      });
+      return otherVariant = [...otherVariant, ...parVariants];
+    });
+    return otherVariant.map(othervar => 
+      <Radio.Button
+        value={othervar._id}
+        key={othervar._id}
+        onClick={() => history.push(`/product/${othervar.slug}`)}
+      >
+        {
+          othervar.title.length > 10
+            ? othervar.title.slice(0, 10) + "... " + othervar.name
+            : othervar.title + " " + othervar.name
+        }
+      </Radio.Button>
+    )
+  }
 
   return (
     <ul className="list-group">
@@ -95,6 +122,7 @@ const ProductListItems = ({ product, setVariant }) => {
                   {v.name}
                 </Radio.Button>
               ))}
+              {showRelativeVariant()}
             </Radio.Group>
           </li>
         </>
