@@ -108,7 +108,7 @@ const ProductListItems = ({ product, setVariant }) => {
         <>
           <li className="list-group-item">Variant:</li>
           <li className="list-group-item">
-            <Radio.Group defaultValue={variants[0]._id}>
+            <Radio.Group>
               <Radio.Button
                 style={{ display: "none" }}
                 value="0"

@@ -1,5 +1,16 @@
 import axios from "axios";
 
+export const listUsers = async (authToken) =>
+  await axios.get(
+    process.env.REACT_APP_API + "/admin/users",
+    {
+      headers: {
+        authToken,
+        estoreid: process.env.REACT_APP_ESTORE_ID,
+      },
+    }
+  );
+
 export const userCart = async (cart, authToken) =>
   await axios.post(
     process.env.REACT_APP_API + "/user/cart",

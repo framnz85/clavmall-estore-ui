@@ -89,6 +89,11 @@ const AdminNav = () => {
           </Link>
         </li>
         <li className="nav-item">
+          <Link to="/admin/manageuser" className="nav-link" style={textColor}>
+            Manage User
+          </Link>
+        </li>
+        <li className="nav-item">
           <Link to="/admin/managehome" className="nav-link" style={textColor}>
             Manage Home
           </Link>

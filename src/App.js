@@ -63,6 +63,7 @@ const PaymentUpdate = lazy(() => import("./pages/admin/payment/PaymentUpdate"));
 const CreateCouponPage = lazy(() =>
   import("./pages/admin/coupon/CreateCoupon")
 );
+const ManageUser = lazy(() => import("./pages/admin/users/ManageUser"));
 const ManageHome = lazy(() => import("./pages/admin/carousel/ManageHome"));
 
 const App = () => {
@@ -277,6 +278,7 @@ const App = () => {
             component={PaymentUpdate}
           />
           <AdminRoute exact path="/admin/coupon" component={CreateCouponPage} />
+          <AdminRoute exact path="/admin/manageuser" component={ManageUser} />
           <AdminRoute exact path="/admin/managehome" component={ManageHome} />
         </Switch>
       </Suspense>

@@ -102,7 +102,10 @@ const CartProductTable = ({cart}) => {
         {
             key: "variant",
             label: "Variant",
-            content: (product) => product.variants.filter(v => v._id === product.variant)[0].name,
+            content: (product) => {
+                const productVariant = product.variants.filter(v => v._id === product.variant);
+                return productVariant[0] && productVariant[0].name
+            },
         },
         {
             key: "action",

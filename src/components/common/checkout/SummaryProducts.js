@@ -13,6 +13,7 @@ const ProductTable = ({ products }) => {
         {products &&
           products.map((p, i) => {
             const product = p.product ? p.product : p;
+            const productVariant = product.variants.filter((v) => v._id === p.variant);
             return (
               <tr key={i}>
                 <td
@@ -20,7 +21,7 @@ const ProductTable = ({ products }) => {
                   style={{ width: "500px", paddingBottom: "10px" }}
                 >
                   {product.title}
-                  ({product.variants.filter((v) => v._id === p.variant)[0].name})
+                  ({productVariant[0] && productVariant[0].name})
                   @ <NumberFormat
                       value={Number(product.price).toFixed(2)}
                       displayType={"text"}

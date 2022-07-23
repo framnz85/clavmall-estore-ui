@@ -9,7 +9,8 @@ let initialState = {
     pages: [],
     itemsCount: 0,
   },
-  categories: []
+  categories: [],
+  users: []
 };
 
 export const adminReducer = (state = initialState, action) => {
@@ -51,6 +52,8 @@ export const adminReducer = (state = initialState, action) => {
     case "ADMIN_OBJECT_XVIII":
       return { ...state, ...action.payload };
     case "ADMIN_OBJECT_XIX":
+      return { ...state, ...action.payload };
+    case "ADMIN_OBJECT_XX":
       return { ...state, ...action.payload };
     default:
       return state;

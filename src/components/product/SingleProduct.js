@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { Card, Tooltip, Button } from "antd";
@@ -32,6 +32,10 @@ const SingleProduct = ({ product, onStarClick, star, unavailable }) => {
 
   const { user } = useSelector((state) => ({ ...state }));
 
+  useEffect(() => {
+    setVariant(variants[0] && variants[0]._id);
+  }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
+  
   const handleAddToCart = () => {
     let cart = [];
     const variantSelect = variant ? variant : variants[0]._id;
