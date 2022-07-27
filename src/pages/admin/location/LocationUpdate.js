@@ -23,13 +23,13 @@ const LocationUpdate = ({ history, match }) => {
     minorder: "",
     maxorder: "",
     delfee: "",
-    delfeetype: "",
+    delfeetype: "%",
     discount: "",
-    discounttype: "",
+    discounttype: "%",
     servefee: "",
-    servefeetype: "",
+    servefeetype: "%",
     deltime: "",
-    deltimetype: "",
+    deltimetype: "days",
   };
 
   const [values, setValues] = useState(initialState);

@@ -18,13 +18,13 @@ const initialState = {
   minorder: "",
   maxorder: "",
   delfee: "",
-  delfeetype: "",
+  delfeetype: "%",
   discount: "",
-  discounttype: "",
+  discounttype: "%",
   servefee: "",
-  servefeetype: "",
+  servefeetype: "%",
   deltime: "",
-  deltimetype: "",
+  deltimetype: "days",
 };
 
 const initialMyState = {
