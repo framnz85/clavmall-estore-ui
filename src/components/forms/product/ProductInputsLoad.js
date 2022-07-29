@@ -214,7 +214,7 @@ const ProductInputsLoad = ({
   }
 
   return (
-    <div>{JSON.stringify(newGroupings)}
+    <div>
       <ProductInputsChange
         values={values}
         setValues={setValues}
