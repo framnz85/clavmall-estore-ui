@@ -146,9 +146,8 @@ const ProductInputsLoad = ({
             payload: res.data,
           });
         });
-        setshowSubcat(false);
         setLoading(false);
-        toast.success(`"${res.data.ops[0].name}" is created.`);
+        toast.success(`"${res.data.ops[0].name}" sub-category is created.`);
       })
       .catch((error) => {
         toast.error(error.message);
@@ -201,9 +200,8 @@ const ProductInputsLoad = ({
             payload: res.data,
           });
         });
-        setshowSubcat(false);
         setLoading(false);
-        toast.success(`"${res.data.ops[0].name}" is created.`);
+        toast.success(`"${res.data.ops[0].name}" parent is created.`);
       })
       .catch((error) => {
         if (error.response.status === 400 || 404)
