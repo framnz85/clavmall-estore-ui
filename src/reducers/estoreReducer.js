@@ -62,6 +62,8 @@ export const estoreReducer = (state = initialState, action) => {
       return reducerExec(state, action.payload);
     case "ESTORE_INFO_XXII":
       return reducerExec(state, action.payload);
+    case "ESTORE_INFO_XXIII":
+      return reducerExec(state, action.payload);
     case "ESTORE_LOGOUT":
       return action.payload;
     default:

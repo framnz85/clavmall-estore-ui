@@ -165,6 +165,7 @@ const ProductCreate = ({ history }) => {
             values={values}
             setValues={setValues}
             loading={loading}
+            setLoading={setLoading}
             handleSubmit={handleSubmit}
             subcatOptions={subcatOptions}
             setSubcatOptions={setSubcatOptions}

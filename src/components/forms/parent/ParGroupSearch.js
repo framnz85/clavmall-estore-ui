@@ -24,11 +24,6 @@ const ParGroupSearch = ({ values, setValues }) => {
     }
 
     const handleCategoryChange = (value) => {
-        setValues({
-            ...values,
-            searchedCat: value,
-            currentPage: 1,
-        })
         getCategorySubcats(value).then((res) => {
             dispatch({
                 type: "SUBCAT_LIST_IV",
@@ -39,6 +34,12 @@ const ParGroupSearch = ({ values, setValues }) => {
             dispatch({
                 type: "PARENT_LIST_XI",
                 payload: res.data,
+            });
+            setValues({
+                ...values,
+                searchedCat: value,
+                currentPage: 1,
+                itemsCount: res.data.length
             });
         });
     };

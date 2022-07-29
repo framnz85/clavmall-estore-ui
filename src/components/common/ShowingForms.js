@@ -8,6 +8,7 @@ import InputDatePicker from "./form/InputDatePicker";
 import AntNumberRange from "./form/AntNumberRange";
 import AntRangePicker from "./form/AntRangePicker";
 import AntCheckbox from "./form/AntCheckbox";
+import AntButton from "./form/AntButton";
 
 const ShowingForms = ({ formProperty }) => {
   return (
@@ -39,6 +40,8 @@ const ShowingForms = ({ formProperty }) => {
           <AntRangePicker key={prop.name} inputProperty={prop} />
         ) : prop.type === "ant checked" ? (
           <AntCheckbox key={prop.name} inputProperty={prop} />
+        ) : prop.type === "button" ? (
+          <AntButton key={prop.name} inputProperty={prop} />
         ) : (
           <InputText key={prop.name} inputProperty={prop} />
         )

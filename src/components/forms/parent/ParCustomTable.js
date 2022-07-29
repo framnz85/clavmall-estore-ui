@@ -34,10 +34,6 @@ const ParCustomTable = ({ values, setValues, loading, setLoading }) => {
 
     const loadCategories = () => {
         getCategories(user.address ? user.address : {}).then((category) => {
-            setValues({
-                ...values,
-                itemsCount: category.data.catComplete.length
-            });
             dispatch({
                 type: "CATEGORY_LIST_VII",
                 payload: category.data.catComplete,

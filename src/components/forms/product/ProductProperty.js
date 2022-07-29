@@ -13,6 +13,7 @@ const ProductProperty = ({
   handleMarkupTypeChange,
   handlePriceChange,
   handleCategoryChange,
+  handleSubcatChange,
   handleParentChange,
   subcatOptions,
   showSubcat,
@@ -20,6 +21,11 @@ const ProductProperty = ({
   updatingProduct,
   handleVariantDetails,
   onFinish,
+  newGroupings,
+  setNewGroupings,
+  submitNewCategory,
+  submitNewSubcat,
+  submitNewParent,
   edit,
 }) => {
   const {
@@ -113,12 +119,51 @@ const ProductProperty = ({
       onChange: handleCategoryChange,
       value: category,
       disabled: loading,
-      options: categories.map(
-        (cat) =>
-          (cat = { ...cat, key: cat._id, value: cat._id, text: cat.name })
-      ),
+      optgroup: [
+          {
+              key: 1,
+              label: "Create New",
+              options: [{ key: 1, value: 1, text: "+ Create" }],
+          },
+          {
+              key: 2,
+              label: "Suggested",
+              options: categories
+                .sort((x, y) => {
+                  if (x.name < y.name) { return -1; }
+                  if (x.name > y.name) { return 1; }
+                  return 0
+                })
+                .map(
+                  (cat) =>
+                    (cat = { ...cat, key: cat._id, value: cat._id, text: cat.name })
+                ),
+          },
+      ],
       show: true,
       edit,
+    },
+    {
+      type: "text",
+      name: "newcategory",
+      onChange: (e) => setNewGroupings({
+          ...newGroupings,
+          category: { id: "1", name: e.target.value }
+        })
+      ,
+      value: newGroupings.category && newGroupings.category.name,
+      placeholder: "New Category",
+      disabled: loading,
+      show: newGroupings.category && newGroupings.category.id === "1",
+      edit,
+    },
+    {
+      type: "button",
+      name: "submitnewCategory",
+      label: "Submit New Category",
+      onSubmit: submitNewCategory,
+      disabled: loading,
+      show: newGroupings.category && newGroupings.category.id === "1",
     },
     {
       type: "ant select",
@@ -129,19 +174,58 @@ const ProductProperty = ({
         paddingBottom: "15px",
       },
       mode: "multiple",
-      onChange: (value) => setValues({ ...values, subcats: value }),
+      onChange: handleSubcatChange,
       value: updatingProduct ? subcats.map((subcat) => subcat) : subcats,
       disabled: loading,
-      options: subcatOptions.map(
-        (subcat) =>
-          (subcat = {
-            ...subcat,
-            key: subcat._id,
-            value: subcat._id,
-            text: subcat.name,
-          })
-      ),
+      optgroup: [
+          {
+              key: 1,
+              label: "Create New",
+              options: [{ key: 1, value: 1, text: "+ Create" }],
+          },
+          {
+              key: 2,
+              label: "Suggested",
+              options: subcatOptions
+                .sort((x, y) => {
+                  if (x.name < y.name) { return -1; }
+                  if (x.name > y.name) { return 1; }
+                  return 0
+                })
+                .map(
+                  (subcat) =>
+                    (subcat = {
+                      ...subcat,
+                      key: subcat._id,
+                      value: subcat._id,
+                      text: subcat.name,
+                    })
+                ),
+          },
+      ],
       show: showSubcat || updatingProduct,
+    },
+    {
+      type: "text",
+      name: "newsubcat",
+      onChange: (e) => setNewGroupings({
+          ...newGroupings,
+          subcat: { id: "1", name: e.target.value, parent: values.category }
+        })
+      ,
+      value: newGroupings.subcat && newGroupings.subcat.name,
+      placeholder: "New Sub-Category",
+      disabled: loading,
+      show: newGroupings.subcat && newGroupings.subcat.id === "1",
+      edit,
+    },
+    {
+      type: "button",
+      name: "submitnewSubcat",
+      label: "Submit New Sub-Category",
+      onSubmit: submitNewSubcat,
+      disabled: loading,
+      show: newGroupings.subcat && newGroupings.subcat.id === "1",
     },
     {
       type: "select",
@@ -150,17 +234,56 @@ const ProductProperty = ({
       onChange: handleParentChange,
       value: parent,
       disabled: loading,
-      options: parentOptions.map(
-        (parent) =>
-          (parent = {
-            ...parent,
-            key: parent._id,
-            value: parent._id,
-            text: parent.name,
-          })
-      ),
-      show: true,
+      optgroup: [
+          {
+              key: 1,
+              label: "Create New",
+              options: [{ key: 1, value: 1, text: "+ Create" }],
+          },
+          {
+              key: 2,
+              label: "Suggested",
+              options: parentOptions
+                .sort((x, y) => {
+                  if (x.name < y.name) { return -1; }
+                  if (x.name > y.name) { return 1; }
+                  return 0
+                })
+                .map(
+                  (parent) =>
+                    (parent = {
+                      ...parent,
+                      key: parent._id,
+                      value: parent._id,
+                      text: parent.name,
+                    })
+                ),
+          },
+      ],
+      show: showSubcat || updatingProduct,
       edit,
+    },
+    {
+      type: "text",
+      name: "newparent",
+      onChange: (e) => setNewGroupings({
+          ...newGroupings,
+          parent: { id: "1", name: e.target.value, parent: values.category }
+        })
+      ,
+      value: newGroupings.parent && newGroupings.parent.name,
+      placeholder: "New Parent",
+      disabled: loading,
+      show: newGroupings.parent && newGroupings.parent.id === "1",
+      edit,
+    },
+    {
+      type: "button",
+      name: "submitnewParent",
+      label: "Submit New Parent",
+      onSubmit: submitNewParent,
+      disabled: loading,
+      show: newGroupings.parent && newGroupings.parent.id === "1",
     },
     {
       type: "form list",

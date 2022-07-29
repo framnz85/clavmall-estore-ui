@@ -46,6 +46,8 @@ export const subcatReducer = (state = initialState, action) => {
       return reducerExec(state, action.payload);
     case "SUBCAT_LIST_XI":
       return reducerExec(state, action.payload);
+    case "SUBCAT_LIST_XII":
+      return reducerExec(state, action.payload);
     case "SUBCAT_REMOVE":
       return action.payload;
     default:

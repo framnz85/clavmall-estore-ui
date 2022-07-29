@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import ProductProperty from "./ProductProperty";
@@ -14,12 +14,17 @@ const ProductInputsChange = ({
   setParentOptions,
   updatingProduct,
   setSaveVariant,
+  showSubcat,
+  setshowSubcat,
+  newGroupings,
+  setNewGroupings,
+  submitNewCategory,
+  submitNewSubcat,
+  submitNewParent
 }) => {
   let dispatch = useDispatch();
 
   const { supplierPrice, markup, markuptype } = values;
-
-  const [showSubcat, setshowSubcat] = useState(false);
 
   const handleChange = (e) => {
     setValues({ ...values, [e.target.name]: e.target.value });
@@ -75,27 +80,55 @@ const ProductInputsChange = ({
 
   const handleCategoryChange = (e) => {
     e.preventDefault();
-    setValues({ ...values, subcats: [], category: e.target.value });
-    getCategorySubcats(e.target.value).then((res) => {
-      setSubcatOptions(res.data);
-      dispatch({
-        type: "SUBCAT_LIST_IV",
-        payload: res.data,
+    if (e.target.value === "1") {
+      setNewGroupings({
+        ...newGroupings,
+        category: { id: "1", name: "" }
       });
-    });
-    setshowSubcat(true);
-    getCategoryParents(e.target.value).then((res) => {
-      setParentOptions(res.data);
-      dispatch({
-        type: "PARENT_LIST_XI",
-        payload: res.data,
+    } else {
+      setValues({ ...values, subcats: [], parent: "", category: e.target.value });
+      setNewGroupings({ ...newGroupings, category: {}, subcat: {}, parent: {}});
+      getCategorySubcats(e.target.value).then((res) => {
+        setSubcatOptions(res.data);
+        dispatch({
+          type: "SUBCAT_LIST_IV",
+          payload: res.data,
+        });
       });
-    });
+      setshowSubcat(true);
+      getCategoryParents(e.target.value).then((res) => {
+        setParentOptions(res.data);
+        dispatch({
+          type: "PARENT_LIST_XI",
+          payload: res.data,
+        });
+      });
+    }
+  };
+
+  const handleSubcatChange = (value) => {
+    if (value.includes(1)) {
+      setNewGroupings({
+        ...newGroupings,
+        subcat: { id: "1", name: "" }
+      });
+    } else {
+      setValues({ ...values, subcats: value });
+      setNewGroupings({ ...newGroupings, category: {}, subcat: {}, parent: {}});
+    }
   };
 
   const handleParentChange = (e) => {
     e.preventDefault();
-    setValues({ ...values, parent: e.target.value });
+    if (e.target.value === "1") {
+      setNewGroupings({
+        ...newGroupings,
+        parent: { id: "1", name: "" }
+      });
+    } else {
+      setValues({ ...values, parent: e.target.value });
+      setNewGroupings({ ...newGroupings, category: {}, subcat: {}, parent: {}});
+    }
   };
 
   const handleVariantDetails = () => {
@@ -135,6 +168,7 @@ const ProductInputsChange = ({
         handleMarkupTypeChange={handleMarkupTypeChange}
         handlePriceChange={handlePriceChange}
         handleCategoryChange={handleCategoryChange}
+        handleSubcatChange={handleSubcatChange}
         handleParentChange={handleParentChange}
         subcatOptions={subcatOptions}
         showSubcat={showSubcat}
@@ -142,6 +176,11 @@ const ProductInputsChange = ({
         updatingProduct={updatingProduct}
         handleVariantDetails={handleVariantDetails}
         onFinish={onFinish}
+        newGroupings={newGroupings}
+        setNewGroupings={setNewGroupings}
+        submitNewCategory={submitNewCategory}
+        submitNewSubcat={submitNewSubcat}
+        submitNewParent={submitNewParent}
       />
     </>
   );

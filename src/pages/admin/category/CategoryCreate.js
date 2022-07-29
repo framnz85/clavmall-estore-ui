@@ -3,9 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import Joi from "joi-browser";
 import { toast } from "react-toastify";
 import { Button } from "antd";
+
 import AdminNav from "../../../components/nav/AdminNav";
 import CategoryInputs from "../../../components/forms/category/CategoryInputs";
 import CatCustomTable from "../../../components/forms/category/CatCustomTable";
+
 import { createCategory } from "../../../functions/category";
 import { updateChanges } from "../../../functions/estore";
 

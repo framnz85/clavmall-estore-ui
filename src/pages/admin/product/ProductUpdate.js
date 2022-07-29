@@ -255,6 +255,7 @@ const ProductUpdate = ({ history, match }) => {
             values={values}
             setValues={setValues}
             loading={loading}
+            setLoading={setLoading}
             handleSubmit={handleSubmit}
             subcatOptions={subcatOptions}
             setSubcatOptions={setSubcatOptions}

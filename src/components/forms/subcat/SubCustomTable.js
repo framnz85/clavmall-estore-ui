@@ -31,10 +31,6 @@ const SubCustomTable = ({ values, setValues, loading, setLoading }) => {
 
     const loadCategories = () => {
         getCategories(user.address ? user.address : {}).then((category) => {
-            setValues({
-                ...values,
-                itemsCount: category.data.catComplete.length
-            });
             dispatch({
                 type: "CATEGORY_LIST_VII",
                 payload: category.data.catComplete,
@@ -49,7 +45,6 @@ const SubCustomTable = ({ values, setValues, loading, setLoading }) => {
     const loadSubcats = () => {
         if (typeof window !== undefined) {
             if (!localStorage.getItem("subcats")) {
-                setLoading(true);
                 getSubcats().then((subcat) => {
                     setValues({
                         ...values,
