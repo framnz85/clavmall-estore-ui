@@ -1,0 +1,102 @@
+body {
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  background-color: #efefef;
+}
+
+.slider img {
+  height: 512px;
+  object-fit: cover;
+}
+
+#printable {
+  display: none;
+}
+
+nav {
+  padding: 0;
+  margin: 0;
+}
+
+nav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  z-index: 1;
+}
+
+nav ul .menuicon {
+  font-size: 24px;
+  color: #fff;
+  cursor: pointer;
+}
+
+nav ul li {
+  display: inline-block;
+}
+
+.main-menu {
+   position: relative;
+ }
+
+nav ul li div {
+  display: block;
+  padding: 10px 20px;
+  text-decoration: none;
+  color: #333;
+}
+
+nav ul li:hover>ul {
+  display: block;
+}
+
+nav ul ul {
+  display: none;
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  cursor: pointer;
+  left: 0;
+  /* Added left 100% */
+  top: 100%;
+  /* Added top 0 */
+  margin-top:2
+}
+
+nav ul ul li {
+  display: block;
+}
+
+nav ul ul li div {
+  padding: 10px 20px;
+  color: #666;
+}
+
+nav ul ul li div:hover {
+  background-color: #f5f5f5;
+}
+
+.sub-submenu {
+  position: absolute;
+  /* Added position relative */
+  left: 100%;
+  /* Added left 100% */
+  top: 0;
+  /* Adjust the value to position it properly */
+}
+
+@media print {
+  #non-printable {
+    display: none;
+  }
+
+  #printable {
+    display: block;
+  }
+}
+
+@media only screen and (max-device-width: 480px) {
+  .slider img {
+    height: 320px;
+  }
+}
