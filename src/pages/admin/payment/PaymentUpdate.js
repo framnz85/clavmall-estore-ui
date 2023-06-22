@@ -138,9 +138,20 @@ const PaymentUpdate = ({ history, match }) => {
       return;
     }
 
+    if (values.images && values.images.length > 2) {
+      toast.error(
+        "You can only add up to 2 images. First image is a payment logo and the second is a QR Code"
+      );
+      return;
+    }
+
     setLoading(true);
 
-    const paySubmit = { ...values.payment, noAvail: values.noAvail, images: values.images };
+    const paySubmit = {
+      ...values.payment,
+      noAvail: values.noAvail,
+      images: values.images,
+    };
 
     updateMyPayment(paySubmit, user.token).then((res) => {
       if (admin.myPayments)
@@ -176,8 +187,10 @@ const PaymentUpdate = ({ history, match }) => {
             setSaveDetails={setSaveDetails}
             edit={true}
           />
-          
-          <label><b>Add Image</b></label>
+
+          <label>
+            <b>Add Image</b>
+          </label>
           <PaymentImage
             values={values}
             setValues={setValues}
@@ -208,8 +221,9 @@ const PaymentUpdate = ({ history, match }) => {
           >
             Update
           </Button>
-          <br /><br />
-          
+          <br />
+          <br />
+
           <div style={{ paddingBottom: 10 }}>
             <AddDomain />
           </div>

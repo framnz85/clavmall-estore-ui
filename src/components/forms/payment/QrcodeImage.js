@@ -5,7 +5,7 @@ import ThumbUpload from "../../common/fileupload/ThumbUpload";
 
 import { imageupdate } from "../../../functions/payment";
 
-const PaymentImage = ({ values, setValues, width, height, edit }) => {
+const QrcodeImage = ({ values, setValues, width, height, edit }) => {
   let dispatch = useDispatch();
   const { _id: payid } = values.payment;
 
@@ -13,7 +13,7 @@ const PaymentImage = ({ values, setValues, width, height, edit }) => {
 
   const [loading, setLoading] = useState(false);
 
-  const updatePaymentImage = (images) => {
+  const updateQrcodeImage = (images) => {
     if (admin.myPayments) {
       const newMyPayments = admin.myPayments.map((payment) =>
         payment._id === payid ? { ...values.payment, images } : payment
@@ -30,7 +30,7 @@ const PaymentImage = ({ values, setValues, width, height, edit }) => {
     imageupdate(payid, images, user.token);
   };
 
-  const removePaymentImage = (images) => {
+  const removeQrcodeImage = (images) => {
     if (admin.myPayments) {
       const newMyPayments = admin.myPayments.map((payment) =>
         payment._id === payid ? { ...values.payment, images } : payment
@@ -49,10 +49,6 @@ const PaymentImage = ({ values, setValues, width, height, edit }) => {
 
   return (
     <>
-      <div style={{ color: "red" }}>
-        You can add up to 2 images. First image is for a Payment Logo and the
-        second is optional for QR Code
-      </div>
       <ThumbUpload
         values={values}
         setValues={setValues}
@@ -61,11 +57,11 @@ const PaymentImage = ({ values, setValues, width, height, edit }) => {
         loading={loading}
         setLoading={setLoading}
         edit={edit}
-        handleImageUpdate={updatePaymentImage}
-        handleImageRemove={removePaymentImage}
+        handleImageUpdate={updateQrcodeImage}
+        handleImageRemove={removeQrcodeImage}
       />
     </>
   );
 };
 
-export default PaymentImage;
+export default QrcodeImage;

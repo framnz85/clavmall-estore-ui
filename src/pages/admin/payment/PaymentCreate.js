@@ -73,6 +73,13 @@ const PaymentCreate = () => {
       return;
     }
 
+    if (values.images && values.images.length > 2) {
+      toast.error(
+        "You can only add up to 2 images. First image is a payment logo and the second is a QR Code"
+      );
+      return;
+    }
+
     setLoading(true);
 
     for (let i = 0; i < values.images.length; i++) {
@@ -115,7 +122,7 @@ const PaymentCreate = () => {
         </div>
         <div className="col-md-10 bg-white mt-3 mb-5">
           <EstoreExpired />
-          
+
           <h4 style={{ margin: "20px 0" }}>Payment Create</h4>
           <hr />
 
@@ -128,17 +135,21 @@ const PaymentCreate = () => {
             setSaveDetails={setSaveDetails}
             edit={false}
           />
-          
-          {values.paymentChoices.length > 0 && <>
-            <label><b>Add Image</b></label>
-            <PaymentImage
-              values={values}
-              setValues={setValues}
-              width={150}
-              height={150}
-              edit={false}
-            />
-          </>}
+
+          {values.paymentChoices.length > 0 && (
+            <>
+              <label>
+                <b>Add Image</b>
+              </label>
+              <PaymentImage
+                values={values}
+                setValues={setValues}
+                width={150}
+                height={150}
+                edit={false}
+              />
+            </>
+          )}
 
           <Button
             onClick={handleSubmit}
@@ -157,8 +168,9 @@ const PaymentCreate = () => {
           <hr />
 
           <MyPaymentTable myValues={myValues} setMyValues={setMyValues} />
-          <br /><br />
-          
+          <br />
+          <br />
+
           <div style={{ paddingBottom: 10 }}>
             <AddDomain />
           </div>
